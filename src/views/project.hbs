@@ -1,0 +1,16 @@
+{{#> body }}
+<h1>{{project.name}}</h1>
+<a href="/">Back</a>
+<ul>
+  {{#each lines}}
+  <li>
+    <a href="{{../project.id}}/line/{{this.id}}"><h3>{{this.name}}</h3></a>
+    <span>{{#currency this.currency}}{{this.amount}}{{/currency}}</span>
+    <p>Paid by {{this.paid}}</p>
+    <p>{{#date "D MMM"}}{{this.createdAt}}{{/date}}</p>
+  </li>
+  {{else}}
+  No lines
+  {{/each}}
+</ul>
+{{/body}}

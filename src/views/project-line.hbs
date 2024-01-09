@@ -1,0 +1,62 @@
+{{#> body }}
+<script>
+  function computeSplit(total){
+   const checked = document.querySelectorAll('input[name=for]:checked')
+   const amount = checked.length === 0 ? 0 : total / checked.length
+   
+   document.querySelectorAll('input[name=for]').forEach(el => {
+    const participant = el.attributes['data-for'].value
+    const input = document.querySelector('input[name="participants|'+participant+'"]')
+    input.value = el.checked ? amount : 0
+   })
+  }
+</script>
+
+<h1>{{project.name}}</h1>
+<a href="/project/{{project.id}}">Back</a>
+<form class="grid">
+  <label>
+    Title
+    <input name="title" value="{{line.name}}" />
+  </label>
+  <label>
+    Amount
+    <input name="amount" value="{{line.amount}}" inputmode="numeric" pattern="[0-9]*" type="text"  />
+  </label>
+  <label>
+    Currency
+    <select name="currency" value="{{line.currency}}">
+      {{#each currencies}}
+      <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+  </label>
+  <label>
+    Date
+    <input type="datetime" value="{{line.createdAt}}" />
+  </label>
+  <label>
+    Paid by
+    <select value="{{line.paid}}">
+      {{#each project.participants}}
+      <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+  </label>
+  <ul x-data='{ split: {{#json line.split}}{{/json}} }'>
+    <template x-for="s in split">
+      <li>
+        <label>
+          <input name="for" :data-for="s.for" type="checkbox" :checked="s.amount > 0" @click="computeSplit({{line.amount}})"/>
+          <span x-text="s.for"></span>
+        </label>
+        <input :name="'participants|'+s.for" :value="s.amount" inputmode="numeric" pattern="[0-9]*" type="text"/>
+        {{../line.currency}}
+      </li>
+    </template>
+  </ul>
+  <div>
+    <button>Save</button>
+  </div>
+</form>
+{{/body}}
