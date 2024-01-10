@@ -14,10 +14,12 @@
 
 <h1>{{project.name}}</h1>
 <a href="/project/{{project.id}}">Back</a>
-<form class="grid">
+<form class="grid" method="post" action="">
+  <input type="hidden" name="project_id" value="{{project.id}}" />
+  <input type="hidden" name="id" value="{{line.id}}" />
   <label>
     Title
-    <input name="title" value="{{line.name}}" />
+    <input name="name" value="{{line.name}}" />
   </label>
   <label>
     Amount
@@ -33,27 +35,28 @@
   </label>
   <label>
     Date
-    <input type="datetime" value="{{line.createdAt}}" />
+    <input type="date" name="created_at" value="{{line.created_at}}" />
   </label>
   <label>
     Paid by
-    <select value="{{line.paid}}">
+    <select value="{{line.paid}}" name="paid">
       {{#each project.participants}}
       <option value="{{this}}">{{this}}</option>
       {{/each}}
     </select>
   </label>
-  <ul x-data='{ split: {{#json line.split}}{{/json}} }'>
-    <template x-for="s in split">
-      <li>
-        <label>
-          <input name="for" :data-for="s.for" type="checkbox" :checked="s.amount > 0" @click="computeSplit({{line.amount}})"/>
-          <span x-text="s.for"></span>
-        </label>
-        <input :name="'participants|'+s.for" :value="s.amount" inputmode="numeric" pattern="[0-9]*" type="text"/>
-        {{../line.currency}}
-      </li>
-    </template>
+  <ul x-data='{ split: {{line.split}} }'>
+    <input type="hidden" name="split" :value="split"/>
+    {{#each project.participants}}
+    <li x-data="{ s: split.find(e => e.participant === '{{this}}')}">
+      <label>
+        <input name="participant" :data-for="s.participant" type="checkbox" :checked="s.amount > 0" @click="computeSplit({{line.amount}})"/>
+        {{this}}
+      </label>
+      <input name="participants|{{this}}" :value="s.amount" inputmode="numeric" pattern="[0-9]*" type="text"/>
+      {{../line.currency}}
+    </li>
+    {{/each}}
   </ul>
   <div>
     <button>Save</button>

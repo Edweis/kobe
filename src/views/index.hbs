@@ -1,10 +1,12 @@
 {{#> body }}
 <h1>Kobe</h1>
 <ul>
+  {{#each projects}}
   <li>
-    <a href="project/pro_123">
-      <h3>Suka Makan</h3>
+    <a href="project/{{this.id}}">
+      <h3>{{this.name}}</h3>
     </a>
   </li>
+  {{/each}}
 </ul>
 {{/body}}

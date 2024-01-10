@@ -14,6 +14,9 @@ Handlebars.registerHelper('date', function (arg1, options) {
 Handlebars.registerHelper('json', function (arg1, options) {
   return JSON.stringify(arg1)
 })
+Handlebars.registerHelper('parse', function (arg1, options) {
+  return JSON.parse(arg1)
+})
 
 // Partials
 const partialPath = root + '/views/partials/body.hbs'
