@@ -11,6 +11,10 @@ const router = new Router();
 // Middlewares
 app
   .use(bodyParser())
+  .use((ctx, next)=>{
+    console.log(ctx.method, ctx.path)
+    return next()
+  })
 
 const currencies = ["IDR", "SGD", "EUR", "USD"]
 
@@ -26,6 +30,7 @@ router.get('/alpine.js', async (ctx) => {
 
 // Endpoints
 router.get('/', async (ctx) => {
+  console.log('GET /')
   const projects = await db.all('SELECT * FROM projects')
   ctx.body = render('index', { projects })
 });

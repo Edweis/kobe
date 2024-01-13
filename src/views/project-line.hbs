@@ -1,65 +1,64 @@
 {{#> body }}
 <script>
   function computeSplit(total){
-   const checked = document.querySelectorAll('input[name=for]:checked')
+   const checked = document.querySelectorAll('input[data-included]:checked')
    const amount = checked.length === 0 ? 0 : total / checked.length
    
-   document.querySelectorAll('input[name=for]').forEach(el => {
-    const participant = el.attributes['data-for'].value
-    const input = document.querySelector('input[name="participants|'+participant+'"]')
-    input.value = el.checked ? amount : 0
+   document.querySelectorAll('input[data-included]').forEach(el => {
+    const participant = el.attributes['data-included'].value
+    const ouput = el.nextElementSibling.nextElementSibling.nextElementSibling
+    ouput.value = el.checked ? amount : 0
    })
   }
 </script>
 
-<h1>{{project.name}}</h1>
-<a href="/project/{{project.id}}">Back</a>
+<a href="/project/{{project.id}}" class="link"><h1>{{project.name}}</h1></a>
 <form class="grid" method="post" action="">
   <input type="hidden" name="project_id" value="{{project.id}}" />
   <input type="hidden" name="id" value="{{line.id}}" />
-  <label>
-    Title
-    <input name="name" value="{{line.name}}" />
+  <label class="form-control">
+    <span class="label label-text">Title</span>
+    <input name="name" class="input input-bordered" value="{{line.name}}" />
   </label>
-  <label>
-    Amount
-    <input name="amount" value="{{line.amount}}" inputmode="numeric" pattern="[0-9]*" type="text"  />
+  <label class="form-control">
+    <span class="label label-text">Amount</span>
+    <input name="amount" value="{{line.amount}}"  class="input input-bordered" inputmode="numeric" pattern="[0-9]*" type="text"  />
   </label>
-  <label>
-    Currency
-    <select name="currency" value="{{line.currency}}">
+  <label class="form-control">
+    <span class="label label-text">Currency</span>
+    <select name="currency" value="{{line.currency}}" class="select select-bordered">
       {{#each currencies}}
       <option value="{{this}}">{{this}}</option>
       {{/each}}
     </select>
   </label>
-  <label>
-    Date
-    <input type="date" name="created_at" value="{{line.created_at}}" />
+  <label class="form-control">
+    <span class="label label-text">Date</span>
+    <input type="date" name="created_at" value="{{line.created_at}}" class="input input-bordered" />
   </label>
-  <label>
-    Paid by
-    <select value="{{line.paid}}" name="paid">
+  <label class="form-control">
+    <span class="label label-text">Paid by</span>
+    <select value="{{line.paid}}" name="paid"  class="select select-bordered">
       {{#each project.participants}}
       <option value="{{this}}">{{this}}</option>
       {{/each}}
     </select>
   </label>
-  <ul x-data='{ split: {{line.split}} }'>
-    <input type="hidden" name="split" :value="split"/>
+  <ul class="grid gap-4 mt-4" x-data="{ split: {{line.split}} }">
     {{#each project.participants}}
-    <li x-data="{ s: split.find(e => e.participant === '{{this}}')}">
-      <label>
-        <input name="participant" :data-for="s.participant" type="checkbox" :checked="s.amount > 0" @click="computeSplit({{line.amount}})"/>
+    <li class="flex items-center gap-4" x-data="{ splitLine: split.find(s => s.participant === '{{this}}')}" >
+      <input id="part-{{@index}}" data-included="{{this}}" :checked="splitLine.amount > 0" type="checkbox" onclick="computeSplit({{../line.amount}})" class="checkbox"/>
+      <label for="part-{{@index}}" class="flex items-center gap-4">
         {{this}}
       </label>
-      <input name="participants|{{this}}" :value="s.amount" inputmode="numeric" pattern="[0-9]*" type="text"/>
-      {{../line.currency}}
+      <input type="hidden" name="split[{{@index}}][participant]" value="{{this}}"/>
+      <input name="split[{{@index}}][amount]" :value="splitLine.amount" class="input input-bordered ml-auto" inputmode="numeric" pattern="[0-9]*" type="text"/>
+      <span>{{../line.currency}}</span>
     </li>
     {{/each}}
   </ul>
-  <div>
-    <button>Save</button>
+  <div class="mt-8">
+    <button class="btn btn-primary">Save</button>
   </div>
 </form>
 {{/body}}
