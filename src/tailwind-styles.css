@@ -20,7 +20,7 @@ h3 {
 }
 
 body > * {
-  @apply px-4 container
+  @apply px-4 container mx-auto
 }
 
 .label {

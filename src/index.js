@@ -34,6 +34,11 @@ router.get('/alpine.js', async (ctx) => {
   ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
   ctx.body = fs.readFileSync('./src/lib/alpine.js')
 });
+router.get('/icon.svg', async (ctx) => {
+  ctx.set('content-type', 'image/svg+xml')
+  ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
+  ctx.body = fs.readFileSync('./src/assets/icon.svg')
+});
 
 // Endpoints
 router.get('/', async (ctx) => {
@@ -80,6 +85,7 @@ router.get('/project/:projectId', async (ctx) => {
   console.log(lines)
   const nextId = randKey('lin_')
   if (project) ctx.body = render('project', { project, lines, nextId, search })
+  else ctx.redirect('/')
 });
 
 router.get('/project/:projectId/line/:lineId', async (ctx) => {
