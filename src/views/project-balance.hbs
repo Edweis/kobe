@@ -7,9 +7,13 @@
   }
 </script>
 
-<h1>{{project.name}}</h1>
+<header>
+  <h1>Balance</h1>
+  <span>{{project.name}}</span>
+</header>
 <div class="flex justify-between">
   <a href="/project/{{project.id}}" class="link">Back</a>
+  <a href="/project/{{project.id}}/reim" class="link">Reimbursements</a>
   <a href="/project/{{project.id}}/settings" class="link">Settings</a>
 </div>
 <div class="grid gap-4 mt-8">

@@ -1,0 +1,39 @@
+{{#> body }}
+<script>
+  function computeStyle(amount){
+    let max = 0
+    document
+      .querySelectorAll('[data-amount]')
+      .forEach(el => {
+         const candidate = Number(el.attributes['data-amount'].value)
+         max = Math.max(Math.abs(candidate), max)
+      })
+
+    const ratio = 100 * amount / max
+    const width = Math.abs(ratio / 2)
+    const left = amount > 0 ? 50 : 50-width
+    console.log({amount, ratio, max})
+    return `width: ${width}%; left: ${left}%`
+  }
+</script>
+
+<header>
+  <h1>Reimbursements</h1>
+  <span>{{project.name}}</span>
+</header>
+<div class="flex justify-between">
+  <a href="/project/{{project.id}}" class="link">Back</a>
+  <a href="/project/{{project.id}}/balance" class="link">Balance</a>
+  <a href="/project/{{project.id}}/settings" class="link">Settings</a>
+</div>
+<div class="grid gap-2 mt-8">
+  {{#each expenses}}
+  <article class="relative grid grid-cols-2 gap-8 py-2" x-data="{}" data-amount="{{this.[1]}}">
+    <div class="text-right">{{this.[0]}}</div>
+    <div>{{currency ../project.currency this.[1]}}</div>
+    <div class="absolute bg-warning/30 data-[positive]:bg-primary/30 h-full" :style="computeStyle({{this.[1]}})" :data-positive="{{this.[1]}} > 0"></div>
+  </article>
+  <hr class=""></hr>
+  {{/each}}
+</div>
+{{/body}}

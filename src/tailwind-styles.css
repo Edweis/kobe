@@ -2,8 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+header {
+  min-width: calc(100% - 10rem)
+}
 h1 {
-  @apply text-5xl font-semibold;
+  @apply text-5xl font-semibold truncate;
 }
 
 h3 {

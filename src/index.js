@@ -4,7 +4,7 @@ import { render } from './lib/render.js';
 import fs from 'fs'
 import bodyParser from 'koa-bodyparser'
 import db from './lib/db.js';
-import { computeBalance, randKey } from './lib/helpers.js'
+import { computeBalance, computeExpenses, randKey } from './lib/helpers.js'
 import dayjs from 'dayjs';
 const app = new Koa();
 const router = new Router();
@@ -110,8 +110,17 @@ router.get('/project/:projectId/balance', async (ctx) => {
   project = { ...project, participants: JSON.parse(project.participants) }
   let lines = await db.all('SELECT paid, split FROM lines WHERE project_id=$1', ctx.params.projectId)
 
-  const balance = computeBalance(lines)
+  const expenses = computeExpenses(lines)
+  const balance = computeBalance(expenses)
   ctx.body = render('project-balance', { project, balance })
+});
+router.get('/project/:projectId/reim', async (ctx) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
+  project = { ...project, participants: JSON.parse(project.participants) }
+  let lines = await db.all('SELECT paid, split FROM lines WHERE project_id=$1', ctx.params.projectId)
+
+  const expenses = computeExpenses(lines)
+  ctx.body = render('project-reim', { project, expenses })
 });
 
 router.get('/project/:projectId/settings', async (ctx) => {

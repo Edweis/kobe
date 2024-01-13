@@ -29,7 +29,10 @@
   }
 </script>
 
-<h1>{{project.name}}</h1>
+<header>
+  <h1>{{line.name}}</h1>
+  <span>{{project.name}}</span>
+</header>
 <a href="/project/{{project.id}}" class="link">Back</a>
 <form class="grid" method="post" action="">
   <input type="hidden" name="project_id" value="{{project.id}}" />
@@ -44,7 +47,7 @@
       <input name="amount" value="{{default line.amount 0}}"  class="input input-bordered grow" inputmode="decimal" pattern="[0-9.]*" type="text" oninput="computeSplit()"  />
       <select name="currency" class="select select-bordered">
         {{#each currencies}}
-        <option value="{{this}}"  {{#ifEq this ../line.currency}}selected=""{{/ifEq}}>{{this}}</option>
+        <option value="{{this}}" {{#ifEq this ../line.currency}}selected=""{{/ifEq}}>{{this}}</option>
         {{/each}}
       </select>
     </div>

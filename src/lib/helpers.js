@@ -8,7 +8,7 @@ export function randKey(prefix, length = 8) {
   return prefix + res;
 }
 
-function rebalance(expenses) {
+export function computeBalance(expenses) {
   console.log(expenses)
   let highest = { amount: -Infinity }
   let lowest = { amount: Infinity }
@@ -22,10 +22,10 @@ function rebalance(expenses) {
   expenses.delete(lowest.name);
   expenses.set(highest.name, highest.amount + lowest.amount)
   const tx = { from: lowest.name, to: highest.name, amount: -lowest.amount }
-  return [tx, ...rebalance(expenses)]
+  return [tx, ...computeBalance(expenses)]
 }
 
-export function computeBalance(lines) {
+export function computeExpenses(lines){
   const expenses = new Map()
   lines
     .flatMap(l => JSON.parse(l.split).map(ll => ({ ...ll, paid: l.paid })))
@@ -33,9 +33,8 @@ export function computeBalance(lines) {
       expenses.set(paid, (expenses.get(paid) || 0) + Number(amount))
       expenses.set(participant, (expenses.get(participant) || 0) - Number(amount))
     });
-
-  return rebalance(expenses)
+  return expenses
 }
 
-const CURR_MAX_DEC = {"BIF":0,"CLP":0,"DJF":0,"GNF":0,"ISK":0,"JPY":0,"KMF":0,"KRW":0,"PYG":0,"RWF":0,"UGX":0,"UYI":0,"VND":0,"VUV":0,"XAF":0,"XOF":0,"XPF":0,"BHD":3,"IQD":3,"JOD":3,"KWD":3,"LYD":3,"OMR":3,"TND":3,"CLF":4,"UYW":4}
-export const currDecimals = (curr) => CURR_MAX_DEC[curr] ?? 2
+// const CURR_MAX_DEC = {"BIF":0,"CLP":0,"DJF":0,"GNF":0,"ISK":0,"JPY":0,"KMF":0,"KRW":0,"PYG":0,"RWF":0,"UGX":0,"UYI":0,"VND":0,"VUV":0,"XAF":0,"XOF":0,"XPF":0,"BHD":3,"IQD":3,"JOD":3,"KWD":3,"LYD":3,"OMR":3,"TND":3,"CLF":4,"UYW":4}
+// export const currDecimals = (curr) => CURR_MAX_DEC[curr] ?? 2

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from "node:assert"
-import { computeBalance } from '../lib/helpers.js'
+import { computeBalance, computeExpenses } from '../lib/helpers.js'
 
 const cases = [
   [ [], [] ],
@@ -40,7 +40,8 @@ const cases = [
     const amount = tx.amount / tx.to.length
     return { paid: tx.from, split: JSON.stringify(tx.to.map(p => ({ participant: p, amount, }))) }
   })
-  return [lines, output]
+  const expenses = computeExpenses(lines)
+  return [expenses, output]
 })
 describe('computeBalance', () => {
   cases.forEach(([input, output], index) => {
