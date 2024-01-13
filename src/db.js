@@ -20,15 +20,16 @@ CREATE TABLE IF NOT EXISTS projects (
   participants JSONB
 );
 CREATE TABLE IF NOT EXISTS lines (
-  id VARCHAR(50) PRIMARY KEY,
+  id VARCHAR(50),
   created_at DATE NOT NULL,
   name VARCHAR(255) NOT NULL,
   amount INTEGER NOT NULL,
   currency VARCHAR(3) NOT NULL,
   paid VARCHAR(255) NOT NULL,
   project_id VARCHAR(50) REFERENCES projects(id),
+  split JSONB,
 
-  split JSONB
+  PRIMARY KEY (id, project_id)
 );
 `,
 );
@@ -42,15 +43,15 @@ ON CONFLICT (id) DO NOTHING;
 -- Insert lines
 INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
 VALUES ('lin_2', '2024-01-03', 'Grab', 133024, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id, project_id) DO NOTHING;
 
 INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
 VALUES ('lin_3', '2024-01-02', 'Beers', 429762, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id, project_id) DO NOTHING;
 
 INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
 VALUES ('lin_4', '2024-01-01', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id, project_id) DO NOTHING;
 `)
 
 export default database

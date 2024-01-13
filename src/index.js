@@ -26,6 +26,7 @@ router.get('/styles.css', async (ctx) => {
 });
 router.get('/alpine.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
+  ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
   ctx.body = fs.readFileSync('./src/lib/alpine.js')
 });
 
@@ -35,6 +36,7 @@ router.get('/', async (ctx) => {
   const projects = await db.all('SELECT * FROM projects')
   ctx.body = render('index', { projects })
 });
+
 router.get('/project/:projectId', async (ctx) => {
   const project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
   const lines = await db.all('SELECT * FROM lines WHERE project_id=$1', ctx.params.projectId)
@@ -42,24 +44,33 @@ router.get('/project/:projectId', async (ctx) => {
   const nextId = 'lin_' + randKey()
   if (project) ctx.body = render('project', { project, lines, nextId })
 });
+
 router.get('/project/:projectId/line/:lineId', async (ctx) => {
-  let project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
+  const { projectId, lineId } = ctx.params
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', projectId)
   project = { ...project, participants: JSON.parse(project.participants) }
-  
-  let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', ctx.params.projectId, ctx.params.lineId)
-  if(line==null) line = {created_at: dayjs().format('YYYY-MM-DD')}
+
+  let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', projectId, lineId)
+  if (line == null) line = { id: lineId, created_at: dayjs().format('YYYY-MM-DD') }
   console.log(line)
-  if(project)
+  if (project)
     ctx.body = render('project-line', { project, line, currencies })
 });
+
 router.post('/project/:projectId/line/:lineId', async (ctx) => {
   const body = ctx.request.body
   const params = [body.created_at, body.name, body.amount, body.currency, body.paid, JSON.stringify(body.split)]
   params.push(body.project_id, body.id)
   console.log(params)
-  await db.run(`UPDATE lines SET
-                created_at=$1, name=$2, amount=$3, currency=$4, paid=$5, split=$6
-                WHERE project_id=$7 AND id=$8`, params)
+  await db.run(`
+    INSERT OR REPLACE INTO lines (created_at, name, amount, currency, paid, split, project_id, id)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+    , params)
+  ctx.redirect('/project/' + ctx.params.projectId)
+});
+
+router.post('/project/:projectId/line/:lineId/delete', async (ctx) => {
+  await db.run(`DELETE FROM lines WHERE project_id=$1 AND id=$2`, [ctx.params.projectId, ctx.params.lineId])
   ctx.redirect('/project/' + ctx.params.projectId)
 });
 

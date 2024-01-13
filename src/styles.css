@@ -910,6 +910,42 @@ html {
     }
   }
 
+  .btn-outline.btn-secondary:hover {
+    --tw-text-opacity: 1;
+    color: var(--fallback-sc,oklch(var(--sc)/var(--tw-text-opacity)));
+  }
+
+  @supports (color: color-mix(in oklab, black, black)) {
+    .btn-outline.btn-secondary:hover {
+      background-color: color-mix(in oklab, var(--fallback-s,oklch(var(--s)/1)) 90%, black);
+      border-color: color-mix(in oklab, var(--fallback-s,oklch(var(--s)/1)) 90%, black);
+    }
+  }
+
+  .btn-outline.btn-accent:hover {
+    --tw-text-opacity: 1;
+    color: var(--fallback-ac,oklch(var(--ac)/var(--tw-text-opacity)));
+  }
+
+  @supports (color: color-mix(in oklab, black, black)) {
+    .btn-outline.btn-accent:hover {
+      background-color: color-mix(in oklab, var(--fallback-a,oklch(var(--a)/1)) 90%, black);
+      border-color: color-mix(in oklab, var(--fallback-a,oklch(var(--a)/1)) 90%, black);
+    }
+  }
+
+  .btn-outline.btn-warning:hover {
+    --tw-text-opacity: 1;
+    color: var(--fallback-wac,oklch(var(--wac)/var(--tw-text-opacity)));
+  }
+
+  @supports (color: color-mix(in oklab, black, black)) {
+    .btn-outline.btn-warning:hover {
+      background-color: color-mix(in oklab, var(--fallback-wa,oklch(var(--wa)/1)) 90%, black);
+      border-color: color-mix(in oklab, var(--fallback-wa,oklch(var(--wa)/1)) 90%, black);
+    }
+  }
+
   .btn-disabled:hover,
     .btn[disabled]:hover,
     .btn:disabled:hover {
@@ -1023,12 +1059,39 @@ html {
   .btn-primary {
     --btn-color: var(--fallback-p);
   }
+
+  .btn-secondary {
+    --btn-color: var(--fallback-s);
+  }
+
+  .btn-accent {
+    --btn-color: var(--fallback-a);
+  }
+
+  .btn-warning {
+    --btn-color: var(--fallback-wa);
+  }
 }
 
 @supports (color: color-mix(in oklab, black, black)) {
   .btn-outline.btn-primary.btn-active {
     background-color: color-mix(in oklab, var(--fallback-p,oklch(var(--p)/1)) 90%, black);
     border-color: color-mix(in oklab, var(--fallback-p,oklch(var(--p)/1)) 90%, black);
+  }
+
+  .btn-outline.btn-secondary.btn-active {
+    background-color: color-mix(in oklab, var(--fallback-s,oklch(var(--s)/1)) 90%, black);
+    border-color: color-mix(in oklab, var(--fallback-s,oklch(var(--s)/1)) 90%, black);
+  }
+
+  .btn-outline.btn-accent.btn-active {
+    background-color: color-mix(in oklab, var(--fallback-a,oklch(var(--a)/1)) 90%, black);
+    border-color: color-mix(in oklab, var(--fallback-a,oklch(var(--a)/1)) 90%, black);
+  }
+
+  .btn-outline.btn-warning.btn-active {
+    background-color: color-mix(in oklab, var(--fallback-wa,oklch(var(--wa)/1)) 90%, black);
+    border-color: color-mix(in oklab, var(--fallback-wa,oklch(var(--wa)/1)) 90%, black);
   }
 }
 
@@ -1048,6 +1111,36 @@ html {
   .btn-primary {
     --btn-color: var(--p);
   }
+
+  .btn-secondary {
+    --btn-color: var(--s);
+  }
+
+  .btn-accent {
+    --btn-color: var(--a);
+  }
+
+  .btn-warning {
+    --btn-color: var(--wa);
+  }
+}
+
+.btn-secondary {
+  --tw-text-opacity: 1;
+  color: var(--fallback-sc,oklch(var(--sc)/var(--tw-text-opacity)));
+  outline-color: var(--fallback-s,oklch(var(--s)/1));
+}
+
+.btn-accent {
+  --tw-text-opacity: 1;
+  color: var(--fallback-ac,oklch(var(--ac)/var(--tw-text-opacity)));
+  outline-color: var(--fallback-a,oklch(var(--a)/1));
+}
+
+.btn-warning {
+  --tw-text-opacity: 1;
+  color: var(--fallback-wac,oklch(var(--wac)/var(--tw-text-opacity)));
+  outline-color: var(--fallback-wa,oklch(var(--wa)/1));
 }
 
 .btn.glass {
@@ -1070,6 +1163,36 @@ html {
 .btn-outline.btn-primary.btn-active {
   --tw-text-opacity: 1;
   color: var(--fallback-pc,oklch(var(--pc)/var(--tw-text-opacity)));
+}
+
+.btn-outline.btn-secondary {
+  --tw-text-opacity: 1;
+  color: var(--fallback-s,oklch(var(--s)/var(--tw-text-opacity)));
+}
+
+.btn-outline.btn-secondary.btn-active {
+  --tw-text-opacity: 1;
+  color: var(--fallback-sc,oklch(var(--sc)/var(--tw-text-opacity)));
+}
+
+.btn-outline.btn-accent {
+  --tw-text-opacity: 1;
+  color: var(--fallback-a,oklch(var(--a)/var(--tw-text-opacity)));
+}
+
+.btn-outline.btn-accent.btn-active {
+  --tw-text-opacity: 1;
+  color: var(--fallback-ac,oklch(var(--ac)/var(--tw-text-opacity)));
+}
+
+.btn-outline.btn-warning {
+  --tw-text-opacity: 1;
+  color: var(--fallback-wa,oklch(var(--wa)/var(--tw-text-opacity)));
+}
+
+.btn-outline.btn-warning.btn-active {
+  --tw-text-opacity: 1;
+  color: var(--fallback-wac,oklch(var(--wac)/var(--tw-text-opacity)));
 }
 
 .btn.btn-disabled,
@@ -1479,12 +1602,36 @@ html {
   width: 1.5rem;
 }
 
+.w-full {
+  width: 100%;
+}
+
+.w-11 {
+  width: 2.75rem;
+}
+
+.grow {
+  flex-grow: 1;
+}
+
 .list-disc {
   list-style-type: disc;
 }
 
+.flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
 .items-center {
   align-items: center;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-end {
+  justify-content: flex-end;
 }
 
 .justify-between {
@@ -1493,6 +1640,14 @@ html {
 
 .gap-4 {
   gap: 1rem;
+}
+
+.gap-8 {
+  gap: 2rem;
+}
+
+.gap-2 {
+  gap: 0.5rem;
 }
 
 .px-4 {
@@ -1505,8 +1660,9 @@ html {
 }
 
 h1 {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
+  margin-bottom: 1rem;
+  font-size: 3rem;
+  line-height: 1;
   font-weight: 600;
 }
 

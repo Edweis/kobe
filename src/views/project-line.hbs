@@ -12,6 +12,16 @@
     ouput.value = el.checked ? amount : 0
    })
   }
+  function deleteLine(){
+
+    console.log(event) ; 
+    const willDelete = confirm('Are you sure you want to delete?') 
+    if(willDelete) {
+       const form = event.target.closest('form')
+       form.action = form.action +'/delete'
+    }
+    else event.preventDefault()
+  }
 </script>
 
 <a href="/project/{{project.id}}" class="link"><h1>{{project.name}}</h1></a>
@@ -20,19 +30,18 @@
   <input type="hidden" name="id" value="{{line.id}}" />
   <label class="form-control">
     <span class="label label-text">Title</span>
-    <input name="name" class="input input-bordered" value="{{line.name}}" autofocus="" />
+    <input name="name" class="input input-bordered" value="{{line.name}}" autofocus="" tabindex="1" />
   </label>
   <label class="form-control">
     <span class="label label-text">Amount</span>
-    <input name="amount" value="{{line.amount}}"  class="input input-bordered" inputmode="decimal" pattern="[0-9]*" type="text" oninput="computeSplit()"  />
-  </label>
-  <label class="form-control">
-    <span class="label label-text">Currency</span>
-    <select name="currency" value="{{line.currency}}" class="select select-bordered">
-      {{#each currencies}}
-      <option value="{{this}}">{{this}}</option>
-      {{/each}}
-    </select>
+    <div class="flex gap-2">
+      <input name="amount" value="{{default line.amount 0}}" tabindex="2"   class="input input-bordered grow" inputmode="decimal" pattern="[0-9.]*" type="text" oninput="computeSplit()"  />
+      <select name="currency" value="{{line.currency}}" class="select select-bordered">
+        {{#each currencies}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
   </label>
   <label class="form-control">
     <span class="label label-text">Date</span>
@@ -54,13 +63,14 @@
         {{this}}
       </label>
       <input type="hidden" name="split[{{@index}}][participant]" value="{{this}}"/>
-      <input name="split[{{@index}}][amount]" :value="splitLine.amount" class="input input-bordered ml-auto" inputmode="numeric" pattern="[0-9]*" type="text"/>
+      <input name="split[{{@index}}][amount]" :value="splitLine.amount" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.]*" type="text"/>
       <span>{{../line.currency}}</span>
     </li>
     {{/each}}
   </ul>
-  <div class="mt-8">
+  <div class="mt-8 flex justify-start gap-8 flex-row-reverse">
     <button class="btn btn-primary">Save</button>
+    <button class="btn btn-warning" onclick="deleteLine(event)">Delete</button>
   </div>
 </form>
 {{/body}}
