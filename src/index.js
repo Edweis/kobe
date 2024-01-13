@@ -1,7 +1,7 @@
 import Koa from 'koa';
 import Router from '@koa/router';
 import { render } from './render.js';
-import fs from 'fs'
+import fs, { copyFileSync } from 'fs'
 import bodyParser from 'koa-bodyparser'
 import db from './db.js';
 import { randKey } from './helpers.js'
@@ -32,17 +32,20 @@ router.get('/alpine.js', async (ctx) => {
 
 // Endpoints
 router.get('/', async (ctx) => {
-  console.log('GET /')
   const projects = await db.all('SELECT * FROM projects')
   ctx.body = render('index', { projects })
 });
 
 router.get('/project/:projectId', async (ctx) => {
+  const search = ctx.query.q
   const project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
-  const lines = await db.all('SELECT * FROM lines WHERE project_id=$1', ctx.params.projectId)
+  const lines = await db.all(`
+    SELECT * FROM lines 
+    WHERE project_id=$1 AND ($2 IS NULL OR name LIKE '%'||$2||'%')`, 
+    ctx.params.projectId, search)
   console.log(lines)
   const nextId = 'lin_' + randKey()
-  if (project) ctx.body = render('project', { project, lines, nextId })
+  if (project) ctx.body = render('project', { project, lines, nextId, search })
 });
 
 router.get('/project/:projectId/line/:lineId', async (ctx) => {

@@ -17,12 +17,15 @@ Handlebars.registerHelper('json', function (arg1, options) {
 Handlebars.registerHelper('parse', function (arg1, options) {
   return JSON.parse(arg1)
 })
-Handlebars.registerHelper('ifEq', function (arg1, arg2,options) {
-  if(arg1===arg2) return options.fn(this)
-  return options.inverse(this)
+Handlebars.registerHelper('ifEq', function (arg1, arg2, options) {
+  return arg1 === arg2 ? options.fn(this) : options.inverse(this)
 })
-Handlebars.registerHelper('default', function (arg1, arg2,options) {
+Handlebars.registerHelper('default', function (arg1, arg2, options) {
   return arg1 || arg2
+})
+Handlebars.registerHelper('ifDefined', function (arg1, options) {
+  console.log({arg1})
+  return arg1 != null ? options.fn(this) : options.inverse(this)
 })
 
 // Partials
