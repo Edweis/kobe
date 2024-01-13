@@ -24,21 +24,22 @@
   }
 </script>
 
-<a href="/project/{{project.id}}" class="link"><h1>{{project.name}}</h1></a>
+<h1>{{project.name}}</h1>
+<a href="/project/{{project.id}}" class="link">Back</a>
 <form class="grid" method="post" action="">
   <input type="hidden" name="project_id" value="{{project.id}}" />
   <input type="hidden" name="id" value="{{line.id}}" />
   <label class="form-control">
     <span class="label label-text">Title</span>
-    <input name="name" class="input input-bordered" value="{{line.name}}" autofocus="" tabindex="1" />
+    <input name="name" class="input input-bordered" value="{{line.name}}" autofocus="" />
   </label>
   <label class="form-control">
     <span class="label label-text">Amount</span>
     <div class="flex gap-2">
-      <input name="amount" value="{{default line.amount 0}}" tabindex="2"   class="input input-bordered grow" inputmode="decimal" pattern="[0-9.]*" type="text" oninput="computeSplit()"  />
-      <select name="currency" value="{{line.currency}}" class="select select-bordered">
+      <input name="amount" value="{{default line.amount 0}}"  class="input input-bordered grow" inputmode="decimal" pattern="[0-9.]*" type="text" oninput="computeSplit()"  />
+      <select name="currency" class="select select-bordered">
         {{#each currencies}}
-        <option value="{{this}}">{{this}}</option>
+        <option value="{{this}}"  {{#ifEq this ../line.currency}}selected=""{{/ifEq}}>{{this}}</option>
         {{/each}}
       </select>
     </div>

@@ -2,11 +2,12 @@
 <h1>{{project.name}}</h1>
 <div class="flex justify-between">
   <a href="/" class="link">Back</a>
-  {{#if search}}
+  {{#ifDefined search}}
   <a href="?" class="link">Close search</a>
   {{else}}
   <a href="?q" class="link">Search</a>
-  {{/if}}
+  {{/ifDefined}}
+  <a href="/project/{{project.id}}/balance" class="link">Balance</a>
 </div>
 {{#ifDefined search}}
 <form class="my-4" action="" method="get">

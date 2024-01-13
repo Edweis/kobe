@@ -1,0 +1,19 @@
+{{#> body }}
+<script>
+</script>
+
+<h1>{{project.name}}</h1>
+<a href="/project/{{project.id}}" class="link">Back</a>
+<div class="mt-4">
+  I am:
+  <div class="grid pl-4 gap-2 pt-2">
+    {{#each project.participants}}
+    <label class="flex gap-4">
+      <input name="me" value="{{this}}" type="radio" class="radio radio-sm"/>
+      {{this}}
+    </label>
+    {{/each}}
+  </div>
+</div>
+
+{{/body}}

@@ -77,6 +77,13 @@ router.post('/project/:projectId/line/:lineId/delete', async (ctx) => {
   ctx.redirect('/project/' + ctx.params.projectId)
 });
 
+router.get('/project/:projectId/balance', async (ctx) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
+  project = { ...project, participants: JSON.parse(project.participants) }
+
+  ctx.body = render('project-balance', { project })
+});
+
 app
   .use(router.routes())
   .use(router.allowedMethods())
