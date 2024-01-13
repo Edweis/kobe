@@ -1,8 +1,10 @@
 {{#> body }}
 <script>
-  function computeSplit(total){
+  function computeSplit(){
    const checked = document.querySelectorAll('input[data-included]:checked')
+   const total = Number(document.querySelector('input[name=amount]').value) ?? 0 
    const amount = checked.length === 0 ? 0 : total / checked.length
+   console.log('SPLITING !')
    
    document.querySelectorAll('input[data-included]').forEach(el => {
     const participant = el.attributes['data-included'].value
@@ -18,11 +20,11 @@
   <input type="hidden" name="id" value="{{line.id}}" />
   <label class="form-control">
     <span class="label label-text">Title</span>
-    <input name="name" class="input input-bordered" value="{{line.name}}" />
+    <input name="name" class="input input-bordered" value="{{line.name}}" autofocus="" />
   </label>
   <label class="form-control">
     <span class="label label-text">Amount</span>
-    <input name="amount" value="{{line.amount}}"  class="input input-bordered" inputmode="numeric" pattern="[0-9]*" type="text"  />
+    <input name="amount" value="{{line.amount}}"  class="input input-bordered" inputmode="decimal" pattern="[0-9]*" type="text" oninput="computeSplit()"  />
   </label>
   <label class="form-control">
     <span class="label label-text">Currency</span>
@@ -40,14 +42,14 @@
     <span class="label label-text">Paid by</span>
     <select  name="paid"  class="select select-bordered">
       {{#each project.participants}}
-      <option value="{{this}}" {{#ifEq this ../line.paid}}selected{{/ifEq}}>{{this}}</option>
+      <option value="{{this}}" {{#ifEq this ../line.paid}}selected=""{{/ifEq}}>{{this}}</option>
       {{/each}}
     </select>
   </label>
-  <ul class="grid gap-4 mt-4" x-data="{ split: {{line.split}} }">
+  <ul class="grid gap-4 mt-4" x-data="{ split: {{default line.split "[]"}}  }">
     {{#each project.participants}}
-    <li class="flex items-center gap-4" x-data="{ splitLine: split.find(s => s.participant === '{{this}}')}" >
-      <input id="part-{{@index}}" data-included="{{this}}" :checked="splitLine.amount > 0" type="checkbox" onclick="computeSplit({{../line.amount}})" class="checkbox"/>
+    <li class="flex items-center gap-4" x-data="{ splitLine: split.find(s => s.participant === '{{this}}') }" >
+      <input id="part-{{@index}}" data-included="{{this}}" :checked="splitLine ==null || splitLine.amount > 0" type="checkbox" onclick="computeSplit()" class="checkbox"/>
       <label for="part-{{@index}}" class="flex items-center gap-4">
         {{this}}
       </label>

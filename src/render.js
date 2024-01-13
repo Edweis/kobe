@@ -21,6 +21,9 @@ Handlebars.registerHelper('ifEq', function (arg1, arg2,options) {
   if(arg1===arg2) return options.fn(this)
   return options.inverse(this)
 })
+Handlebars.registerHelper('default', function (arg1, arg2,options) {
+  return arg1 || arg2
+})
 
 // Partials
 const partialPath = root + '/views/partials/body.hbs'
