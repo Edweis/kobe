@@ -28,9 +28,9 @@
 </nav>
 <div class="grid gap-2 mt-8">
   {{#each expenses}}
-  <article class="relative grid grid-cols-2 gap-8 py-2" x-data="{}" data-amount="{{this.[1]}}">
-    <div class="text-right">{{this.[0]}}</div>
-    <div>{{currency ../project.currency this.[1]}}</div>
+  <article class="relative flex gap-8 py-2 items-center {{#ifNeg this.[1]}}flex-row-reverse{{/ifNeg}}" x-data="{}" data-amount="{{this.[1]}}">
+    <div class="w-full {{#ifNeg this.[1]}}{{else}}text-right{{/ifNeg}}">{{this.[0]}}</div>
+    <div class="w-full {{#ifNeg this.[1]}}text-right{{/ifNeg}}">{{currency ../project.currency this.[1]}}</div>
     <div class="absolute bg-error/50 data-[positive]:bg-primary/30 h-full" :style="computeStyle({{this.[1]}})" :data-positive="{{this.[1]}} > 0"></div>
   </article>
   <hr class=""></hr>

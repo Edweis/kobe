@@ -1408,6 +1408,14 @@ html {
   right: 1rem;
 }
 
+.-order-1 {
+  order: -1;
+}
+
+.order-1 {
+  order: 1;
+}
+
 .my-8 {
   margin-top: 2rem;
   margin-bottom: 2rem;
@@ -1463,6 +1471,10 @@ html {
 
 .list-disc {
   list-style-type: disc;
+}
+
+.grid-flow-row-dense {
+  grid-auto-flow: row dense;
 }
 
 .grid-cols-2 {
@@ -1542,6 +1554,14 @@ html {
 
 .pt-4 {
   padding-top: 1rem;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.\!text-left {
+  text-align: left !important;
 }
 
 .text-right {
