@@ -8,30 +8,24 @@
 </script>
 
 <h1>{{project.name}}</h1>
-<a href="/project/{{project.id}}" class="link">Back</a>
-<div class="mt-4">
-  I am:
-  <ul class="grid pl-4 gap-2 pt-2">
-    {{#each project.participants}}
-    <label class="flex gap-4 items-center">
-      <input name="me" value="{{this}}" type="radio" class="radio radio-sm"/>
-      {{this}}
-    </label>
-    {{else}}
-    (no participants)
-    {{/each}}
-    <form action="/project/{{project.id}}/participant" method="post" onsubmit="requestName(event)">
-      <input name="participant" type="hidden"/>
-      <button class="link">Add a participant</button>
-    </form>
-  </ul>
+<div class="flex justify-between">
+  <a href="/project/{{project.id}}" class="link">Back</a>
+  <a href="/project/{{project.id}}/settings" class="link">Settings</a>
 </div>
-<div x-data="{ balance: {{json balance}} }">
-  <template x-for="line in balance">
-    <li>
-      <span x-text="line[0]"></span>
-      <span x-text="line[1]"></span>
-    </li>
-  </template>
+<div class="grid gap-4 mt-8">
+  {{#each balance}}
+  <hr class="hidden first:block"></hr>
+  <article class="flex items-center justify-between">
+    <div class="grid">
+      <span class="text-xl text-primary">{{this.to}}</span>
+      <span class="text-sm">owes</span>
+      <span class="text-xl text-primary">{{this.from}}</span>
+    </div>
+    <div class="text-xl">
+      {{currency "IDR" this.amount}}
+    </div>
+  </article>
+  <hr class=""></hr>
+  {{/each}}
 </div>
 {{/body}}

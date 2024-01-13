@@ -10,17 +10,17 @@
   <a href="/project/{{project.id}}/balance" class="link">Balance</a>
 </div>
 {{#ifDefined search}}
-<form class="my-4" action="" method="get">
+<form action="" method="get">
   <input type="search" class="input input-bordered w-full" name="q" value="{{search}}" autofocus=""/>
 </form>
 {{/ifDefined}}
-<div class="grid gap-4 mt-8">
+<div class="grid gap-4">
   {{#each lines}}
   <a href="{{../project.id}}/line/{{this.id}}">
     <article class="grid">
       <div class="flex justify-between">
           <h3>{{this.name}}</h3>
-        <span>{{#currency this.currency}}{{this.amount}}{{/currency}}</span>
+        <span>{{currency this.currency this.amount}}</span>
       </div>
       <div class="flex justify-between">
         <p>Paid by {{this.paid}}</p>

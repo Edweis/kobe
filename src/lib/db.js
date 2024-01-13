@@ -16,6 +16,7 @@ await database.exec(
 CREATE TABLE IF NOT EXISTS projects (
   id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
+  currency VARCHAR(3) NOT NULL,
   
   participants JSONB
 );
@@ -37,8 +38,8 @@ const projects = await database.all(`SELECT * FROM projects`)
 if (projects.length === 0)
   await database.exec(`
 -- Insert projects
-INSERT INTO projects (id, name, participants)
-VALUES ('pro_123', 'Suka makan', '["francois", "kaille"]')
+INSERT INTO projects (id, name, participants, currency)
+VALUES ('pro_123', 'Suka makan', '["francois", "kaille"]', 'IDR')
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert lines

@@ -5,8 +5,8 @@ import dayjs from 'dayjs'
 const root = './src'
 
 // Helpers
-Handlebars.registerHelper('currency', function (arg1, options) {
-  return Intl.NumberFormat(undefined, { style: 'currency', currency: arg1, }).format(options.fn(this))
+Handlebars.registerHelper('currency', function (arg1, arg2) {
+  return Intl.NumberFormat(undefined, { style: 'currency', currency: arg1}).format(arg2)
 })
 Handlebars.registerHelper('date', function (arg1, options) {
   return dayjs(options.fn(this)).format(arg1)

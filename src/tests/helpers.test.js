@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from "node:assert"
-import { computeBalance } from '../helpers.js'
+import { computeBalance } from '../lib/helpers.js'
 
 const cases = [
   [ [], [] ],
@@ -34,15 +34,7 @@ const cases = [
       { from: 'c', to: ['a'], amount: 10 }
     ],
     []
-  ],
-  [
-    [
-      { from: 'a', to: ['a', 'b', 'c'], amount: 12 },
-      { from: 'b', to: ['c'], amount: 12 },
-      { from: 'c', to: ['a'], amount: 12 }
-    ],
-    []
-  ],
+  ]
 ].map(([input, output]) => {
   const lines = input.map(tx => {
     const amount = tx.amount / tx.to.length

@@ -1,10 +1,10 @@
 import Koa from 'koa';
 import Router from '@koa/router';
-import { render } from './render.js';
+import { render } from './lib/render.js';
 import fs from 'fs'
 import bodyParser from 'koa-bodyparser'
-import db from './db.js';
-import { randKey } from './helpers.js'
+import db from './lib/db.js';
+import { computeBalance, randKey } from './lib/helpers.js'
 import dayjs from 'dayjs';
 const app = new Koa();
 const router = new Router();
@@ -17,7 +17,7 @@ app
     return next()
   })
 
-const currencies = ["IDR", "SGD", "EUR", "USD"]
+const currencies = ["EUR","IDR", "SGD", "USD"]
 
 // Statics
 router.get('/styles.css', async (ctx) => {
@@ -35,6 +35,7 @@ router.get('/', async (ctx) => {
   const projects = await db.all('SELECT * FROM projects')
   ctx.body = render('index', { projects })
 });
+
 router.post('/project', async (ctx) => {
   const name = ctx.request.body.name
   if (name.trim() === '') return;
@@ -47,10 +48,11 @@ router.post('/project', async (ctx) => {
   )
   ctx.redirect(`/project/${projectId}/balance`)
 });
+
 router.post('/project/:projectId/participant', async (ctx) => {
   const name = ctx.request.body.participant
   const projectId = ctx.params.projectId
-  console.log(ctx.request.body)
+
   if (name.trim() !== '') {
     const project = await db.get('SELECT participants FROM projects WHERE id=$1', projectId)
     const nextParts = JSON.parse(project.participants).filter(p => p !== name).concat(name)
@@ -59,7 +61,7 @@ router.post('/project/:projectId/participant', async (ctx) => {
       [JSON.stringify(nextParts), projectId]
     )
   }
-  ctx.redirect(`/project/${projectId}/balance`)
+  ctx.redirect(`/project/${projectId}/settings`)
 });
 
 router.get('/project/:projectId', async (ctx) => {
@@ -111,6 +113,20 @@ router.get('/project/:projectId/balance', async (ctx) => {
   const balance = computeBalance(lines)
   ctx.body = render('project-balance', { project, balance })
 });
+
+router.get('/project/:projectId/settings', async (ctx) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
+  project = { ...project, participants: JSON.parse(project.participants) }
+  ctx.body = render('project-settings', { project, currencies })
+});
+
+router.post('/project/:projectId/settings', async (ctx) => {
+  const projectId = ctx.params.projectId;
+  const currency = ctx.request.body.currency;
+  await db.run('UPDATE projects SET currency=$1 WHERE id=$2', currency, projectId)
+  ctx.redirect(`/project/${projectId}/settings`)
+});
+
 
 app
   .use(router.routes())
