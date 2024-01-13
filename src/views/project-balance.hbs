@@ -1,19 +1,37 @@
 {{#> body }}
 <script>
+function requestName(event){
+  const name = prompt('New participant name')
+  if(name==null) return event.preventDefault();
+  document.querySelector('input[name=participant]').value = name
+}
 </script>
 
 <h1>{{project.name}}</h1>
 <a href="/project/{{project.id}}" class="link">Back</a>
 <div class="mt-4">
   I am:
-  <div class="grid pl-4 gap-2 pt-2">
+  <ul class="grid pl-4 gap-2 pt-2">
     {{#each project.participants}}
-    <label class="flex gap-4">
+    <label class="flex gap-4 items-center">
       <input name="me" value="{{this}}" type="radio" class="radio radio-sm"/>
       {{this}}
     </label>
+    {{else}}
+    (no participants)
     {{/each}}
-  </div>
+    <form action="/project/{{project.id}}/participant" method="post" onsubmit="requestName(event)">
+      <input name="participant" type="hidden"/>
+      <button class="link">Add a participant</button>
+    </form>
+  </ul>
 </div>
-
+<div x-data="{ balance: {{json balance}} }">
+  <template x-for="line in balance">
+    <li>
+      <span x-text="line[0]"></span>
+      <span x-text="line[1]"></span>
+    </li>
+  </template>
+</div>
 {{/body}}

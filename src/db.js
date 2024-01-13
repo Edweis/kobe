@@ -33,8 +33,9 @@ CREATE TABLE IF NOT EXISTS lines (
 );
 `,
 );
-
-await database.exec(`
+const projects = await database.all(`SELECT * FROM projects`)
+if (projects.length === 0)
+  await database.exec(`
 -- Insert projects
 INSERT INTO projects (id, name, participants)
 VALUES ('pro_123', 'Suka makan', '["francois", "kaille"]')

@@ -1,7 +1,7 @@
 import Koa from 'koa';
 import Router from '@koa/router';
 import { render } from './render.js';
-import fs, { copyFileSync } from 'fs'
+import fs from 'fs'
 import bodyParser from 'koa-bodyparser'
 import db from './db.js';
 import { randKey } from './helpers.js'
@@ -35,16 +35,42 @@ router.get('/', async (ctx) => {
   const projects = await db.all('SELECT * FROM projects')
   ctx.body = render('index', { projects })
 });
+router.post('/project', async (ctx) => {
+  const name = ctx.request.body.name
+  if (name.trim() === '') return;
+
+  const projectId = randKey('pro_')
+  await db.run(`
+    INSERT INTO projects (id, name, participants)
+    VALUES ($1, $2, $3)`,
+    [projectId, name, '[]']
+  )
+  ctx.redirect(`/project/${projectId}/balance`)
+});
+router.post('/project/:projectId/participant', async (ctx) => {
+  const name = ctx.request.body.participant
+  const projectId = ctx.params.projectId
+  console.log(ctx.request.body)
+  if (name.trim() !== '') {
+    const project = await db.get('SELECT participants FROM projects WHERE id=$1', projectId)
+    const nextParts = JSON.parse(project.participants).filter(p => p !== name).concat(name)
+    await db.run(
+      `UPDATE projects SET participants=$1 WHERE id=$2`,
+      [JSON.stringify(nextParts), projectId]
+    )
+  }
+  ctx.redirect(`/project/${projectId}/balance`)
+});
 
 router.get('/project/:projectId', async (ctx) => {
   const search = ctx.query.q
   const project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
   const lines = await db.all(`
     SELECT * FROM lines 
-    WHERE project_id=$1 AND ($2 IS NULL OR name LIKE '%'||$2||'%')`, 
+    WHERE project_id=$1 AND ($2 IS NULL OR name LIKE '%'||$2||'%')`,
     ctx.params.projectId, search)
   console.log(lines)
-  const nextId = 'lin_' + randKey()
+  const nextId = randKey('lin_')
   if (project) ctx.body = render('project', { project, lines, nextId, search })
 });
 
@@ -80,8 +106,17 @@ router.post('/project/:projectId/line/:lineId/delete', async (ctx) => {
 router.get('/project/:projectId/balance', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
   project = { ...project, participants: JSON.parse(project.participants) }
+  let lines = await db.all('SELECT paid, split FROM lines WHERE project_id=$1', ctx.params.projectId)
 
-  ctx.body = render('project-balance', { project })
+  const balance = new Map()
+  lines
+    .flatMap(l => JSON.parse(l.split).map(ll => ({ ...ll, paid: l.paid })))
+    .forEach(({ participant, amount, paid }) => {
+      balance.set(paid, (balance.get(paid) || 0) + Number(amount))
+      balance.set(participant, (balance.get(participant) || 0) - Number(amount))
+      console.log({ participant, amount, paid })
+    })
+  ctx.body = render('project-balance', { project, balance: [...balance.entries()] })
 });
 
 app
