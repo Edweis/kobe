@@ -1,44 +1,42 @@
 {{#> body }}
 
 <header>
-  <h1>Spendings</h1>
-  <span>{{project.name}}</span>
+  <h1>{{project.name}}</h1>
 </header>
-<div class="flex justify-between">
-  <a href="/" class="link">Back</a>
+<nav>
+  <a href="/">Back</a>
   {{#ifDefined search}}
-  <a href="?" class="link">Close search</a>
+  <a href="?">Close search</a>
   {{else}}
-  <a href="?q" class="link">Search</a>
+  <a href="?q">Search</a>
   {{/ifDefined}}
-  <a href="/project/{{project.id}}/total" class="link">Total</a>
-</div>
+  <a href="/project/{{project.id}}/balance">Balance</a>
+</nav>
 {{#ifDefined search}}
 <form action="" method="get">
   <input type="search" class="input input-bordered w-full" name="q" value="{{search}}" autofocus=""/>
 </form>
 {{/ifDefined}}
-<div class="grid gap-4">
+<div class="grid gap-2 pb-12 h-full overflow-y-scroll px-0">
   {{#each lines}}
-  <a href="{{../project.id}}/line/{{this.id}}">
+  <a href="{{../project.id}}/line/{{this.id}}" class="odd:bg-primary/10 even:bg-secondary/10 py-2 px-4">
     <article class="grid">
       <div class="flex justify-between">
-          <h3>{{this.name}}</h3>
-        <span>{{currency this.currency this.amount}}</span>
+        <h3 class="text-primary font-semibold text-xl">{{this.name}}</h3>
+        <span class="text-primary">{{currency this.currency this.amount}}</span>
       </div>
-      <div class="flex justify-between">
+      <div class="flex justify-between text-sm">
         <p>Paid by {{this.paid}}</p>
         <p>{{#date "D MMM"}}{{this.created_at}}{{/date}}</p>
       </div>
     </article>
   </a>
-  <hr class="last:hidden"></hr>
   {{else}}
   No lines
   {{/each}}
 </div>
 <a href="{{project.id}}/line/{{this.nextId}}">
-  <button class="absolute right-4 bottom-4 btn btn-primary btn-circle">
+  <button class="absolute right-4 bottom-4 btn btn-lg btn-primary btn-circle">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
     </svg>

@@ -1,0 +1,35 @@
+{{#> body }}
+<script>
+  function requestName(event){
+    const name = prompt('New participant name')
+    if(name==null) return event.preventDefault();
+    document.querySelector('input[name=participant]').value = name
+  }
+</script>
+
+<header>
+  <h1>Reimburse</h1>
+  <span>{{project.name}}</span>
+</header>
+<nav>
+  <a href="/project/{{project.id}}">Back</a>
+  <a href="/project/{{project.id}}/balance">Balance</a>
+  <a href="/project/{{project.id}}/settings">Settings</a>
+</nav>
+<div class="grid gap-4">
+  {{#each balance}}
+  <hr class="hidden first:block"></hr>
+  <article class="flex items-center justify-between">
+    <div class="grid">
+      <span class="text-xl text-primary font-semibold">{{this.to}}</span>
+      <span class="text-sm">owes</span>
+      <span class="text-xl text-primary font-semibold">{{this.from}}</span>
+    </div>
+    <div class="text-xl text-primary">
+      {{currency "IDR" this.amount}}
+    </div>
+  </article>
+  <hr class=""></hr>
+  {{/each}}
+</div>
+{{/body}}

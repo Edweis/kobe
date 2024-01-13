@@ -30,10 +30,12 @@
 </script>
 
 <header>
-  <h1>{{line.name}}</h1>
+  <h1>{{default line.name "New"}}</h1>
   <span>{{project.name}}</span>
 </header>
-<a href="/project/{{project.id}}" class="link">Back</a>
+<nav>
+  <a href="/project/{{project.id}}">Back</a>
+</nav>
 <form class="grid" method="post" action="">
   <input type="hidden" name="project_id" value="{{project.id}}" />
   <input type="hidden" name="id" value="{{line.id}}" />

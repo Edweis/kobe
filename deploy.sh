@@ -6,7 +6,7 @@ DIR=/home/ubuntu/kobe/
 
 
 echo "\n🚀 Send to server"
-rsync -ravzh --exclude='node_modules'  . $USER@$SERVER:$DIR 
+rsync -ravzh --exclude='node_modules' --exclude='database.db'  . $USER@$SERVER:$DIR 
 
 echo "\n🚀 Download dependencies"
 ssh -t $USER@$SERVER "cd kobe ; pnpm install --prod"

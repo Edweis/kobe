@@ -3,7 +3,13 @@
 @tailwind utilities;
 
 header {
-  min-width: calc(100% - 10rem)
+  min-width: calc(100% - 10rem);
+}
+nav {
+  @apply grid gap-4 grid-cols-3
+}
+nav > a {
+  @apply btn btn-outline btn-sm
 }
 h1 {
   @apply text-5xl font-semibold truncate leading-tight;
@@ -11,4 +17,12 @@ h1 {
 
 h3 {
   @apply text-xl
+}
+
+body > * {
+  @apply px-4 container
+}
+
+.label {
+  @apply pb-0 pl-0
 }

@@ -12,9 +12,14 @@ const router = new Router();
 // Middlewares
 app
   .use(bodyParser())
-  .use((ctx, next) => {
+  .use(async (ctx, next) => {
     console.log(ctx.method, ctx.path)
-    return next()
+    try{
+      await next()
+    } catch(error){
+      ctx.status = 500
+      ctx.body = {...error, message:error.message}
+    }
   })
 
 const currencies = ["EUR","IDR", "SGD", "USD"]
@@ -42,11 +47,11 @@ router.post('/project', async (ctx) => {
 
   const projectId = randKey('pro_')
   await db.run(`
-    INSERT INTO projects (id, name, participants)
-    VALUES ($1, $2, $3)`,
-    [projectId, name, '[]']
+    INSERT INTO projects (id, name, participants, currency)
+    VALUES ($1, $2, $3, $4)`,
+    [projectId, name, '[]', 'EUR']
   )
-  ctx.redirect(`/project/${projectId}/balance`)
+  ctx.redirect(`/project/${projectId}/settings`)
 });
 
 router.post('/project/:projectId/participant', async (ctx) => {
@@ -82,7 +87,7 @@ router.get('/project/:projectId/line/:lineId', async (ctx) => {
   project = { ...project, participants: JSON.parse(project.participants) }
 
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', projectId, lineId)
-  if (line == null) line = { id: lineId, created_at: dayjs().format('YYYY-MM-DD') }
+  if (line == null) line = { id: lineId, created_at: dayjs().format('YYYY-MM-DD'), currency: project.currency }
   console.log(line)
   if (project)
     ctx.body = render('project-line', { project, line, currencies })
@@ -105,22 +110,22 @@ router.post('/project/:projectId/line/:lineId/delete', async (ctx) => {
   ctx.redirect('/project/' + ctx.params.projectId)
 });
 
-router.get('/project/:projectId/balance', async (ctx) => {
+router.get('/project/:projectId/reim', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
   project = { ...project, participants: JSON.parse(project.participants) }
   let lines = await db.all('SELECT paid, split FROM lines WHERE project_id=$1', ctx.params.projectId)
 
   const expenses = computeExpenses(lines)
   const balance = computeBalance(expenses)
-  ctx.body = render('project-balance', { project, balance })
+  ctx.body = render('project-reim', { project, balance })
 });
-router.get('/project/:projectId/total', async (ctx) => {
+router.get('/project/:projectId/balance', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
   project = { ...project, participants: JSON.parse(project.participants) }
   let lines = await db.all('SELECT paid, split FROM lines WHERE project_id=$1', ctx.params.projectId)
 
   const expenses = computeExpenses(lines)
-  ctx.body = render('project-total', { project, expenses })
+  ctx.body = render('project-balance', { project, expenses })
 });
 
 router.get('/project/:projectId/settings', async (ctx) => {

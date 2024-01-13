@@ -13,30 +13,31 @@ export const database = await open({
 
 const IS_PROD = process.env.NODE_ENV === 'production'
 
-if(!IS_PROD){
-  await database.exec(
-    `
-  CREATE TABLE IF NOT EXISTS projects (
-    id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    currency VARCHAR(3) NOT NULL,
-    
-    participants JSONB
-  );
-  CREATE TABLE IF NOT EXISTS lines (
-    id VARCHAR(50),
-    created_at DATE NOT NULL,
-    name VARCHAR(255) NOT NULL COLLATE NOCASE,
-    amount INTEGER NOT NULL,
-    currency VARCHAR(3) NOT NULL,
-    paid VARCHAR(255) NOT NULL,
-    project_id VARCHAR(50) REFERENCES projects(id),
-    split JSONB,
+await database.exec(
+  `
+CREATE TABLE IF NOT EXISTS projects (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  currency VARCHAR(3) NOT NULL,
+  
+  participants JSONB
+);
+CREATE TABLE IF NOT EXISTS lines (
+  id VARCHAR(50),
+  created_at DATE NOT NULL,
+  name VARCHAR(255) NOT NULL COLLATE NOCASE,
+  amount INTEGER NOT NULL,
+  currency VARCHAR(3) NOT NULL,
+  paid VARCHAR(255) NOT NULL,
+  project_id VARCHAR(50) REFERENCES projects(id),
+  split JSONB,
 
-    PRIMARY KEY (id, project_id)
-  );
-  `,
-  );
+  PRIMARY KEY (id, project_id)
+);
+`,
+);
+console.log({IS_PROD})
+if(!IS_PROD){
   const projects = await database.all(`SELECT * FROM projects`)
   if (projects.length === 0)
     await database.exec(`
