@@ -2,6 +2,7 @@
 
 <header>
   <h1>{{project.name}}</h1>
+  <span>Spendings</span>
 </header>
 <nav>
   <a href="/">Back</a>
@@ -27,7 +28,7 @@
       </div>
       <div class="flex justify-between text-sm">
         <p>Paid by {{this.paid}}</p>
-        <p>{{#date "D MMM"}}{{this.created_at}}{{/date}}</p>
+        <p>{{#date "D MMM, HH:mm"}}{{this.created_at}}{{/date}}</p>
       </div>
     </article>
   </a>

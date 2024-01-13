@@ -74,7 +74,8 @@ router.get('/project/:projectId', async (ctx) => {
   const project = await db.get('SELECT * FROM projects WHERE id=$1', ctx.params.projectId)
   const lines = await db.all(`
     SELECT * FROM lines 
-    WHERE project_id=$1 AND ($2 IS NULL OR name LIKE '%'||$2||'%')`,
+    WHERE project_id=$1 AND ($2 IS NULL OR name LIKE '%'||$2||'%')
+    ORDER BY created_at DESC`,
     ctx.params.projectId, search)
   console.log(lines)
   const nextId = randKey('lin_')
@@ -87,7 +88,7 @@ router.get('/project/:projectId/line/:lineId', async (ctx) => {
   project = { ...project, participants: JSON.parse(project.participants) }
 
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', projectId, lineId)
-  if (line == null) line = { id: lineId, created_at: dayjs().format('YYYY-MM-DD'), currency: project.currency }
+  if (line == null) line = { id: lineId, created_at: dayjs().format('YYYY-MM-DDTHH:mm'), currency: project.currency }
   console.log(line)
   if (project)
     ctx.body = render('project-line', { project, line, currencies })
