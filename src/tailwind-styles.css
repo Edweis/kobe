@@ -6,7 +6,7 @@ header {
   min-width: calc(100% - 10rem)
 }
 h1 {
-  @apply text-5xl font-semibold truncate;
+  @apply text-5xl font-semibold truncate leading-tight;
 }
 
 h3 {
