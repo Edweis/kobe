@@ -26,7 +26,7 @@ app
 const currencies = ["EUR", "IDR", "SGD", "USD"]
 
 // Statics
-router.use('/assets', assetsRouter.routes());
+router.use( assetsRouter.routes());
 
 // Endpoints
 router.get('/', async (ctx) => {

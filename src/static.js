@@ -5,16 +5,16 @@ import fs from 'fs/promises'
 
 export const assetsRouter = new Router();
 
-assetsRouter.get('/styles.css', async (ctx) => {
+assetsRouter.get('/assets/styles.css', async (ctx) => {
   ctx.set('content-type', 'text/css')
   ctx.body = await fs.readFile('./src/assets/styles.css')
 });
-assetsRouter.get('/alpine.js', async (ctx) => {
+assetsRouter.get('/assets/alpine.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
   ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
 });
-assetsRouter.get('/serviceworker.js', async (ctx) => {
+assetsRouter.get('/assets/serviceworker.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
   ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
   ctx.set('Service-Worker-Allowed', '/') //@see https://w3c.github.io/ServiceWorker/#service-worker-allowed
@@ -25,7 +25,7 @@ assetsRouter.get('/manifest.json', async (ctx) => {
   ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
   ctx.body = await fs.readFile('./src/assets/manifest.json')
 });
-assetsRouter.get('/:img', async (ctx) => {
+assetsRouter.get('/assets/:img', async (ctx) => {
   const img = ctx.params.img
   console.log({ img })
   if (/icon-\d+x\d+\.(png|ico)/.test(img)) {
