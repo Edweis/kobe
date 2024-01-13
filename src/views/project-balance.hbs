@@ -1,10 +1,10 @@
 {{#> body }}
 <script>
-function requestName(event){
-  const name = prompt('New participant name')
-  if(name==null) return event.preventDefault();
-  document.querySelector('input[name=participant]').value = name
-}
+  function requestName(event){
+    const name = prompt('New participant name')
+    if(name==null) return event.preventDefault();
+    document.querySelector('input[name=participant]').value = name
+  }
 </script>
 
 <h1>{{project.name}}</h1>

@@ -108,15 +108,8 @@ router.get('/project/:projectId/balance', async (ctx) => {
   project = { ...project, participants: JSON.parse(project.participants) }
   let lines = await db.all('SELECT paid, split FROM lines WHERE project_id=$1', ctx.params.projectId)
 
-  const balance = new Map()
-  lines
-    .flatMap(l => JSON.parse(l.split).map(ll => ({ ...ll, paid: l.paid })))
-    .forEach(({ participant, amount, paid }) => {
-      balance.set(paid, (balance.get(paid) || 0) + Number(amount))
-      balance.set(participant, (balance.get(participant) || 0) - Number(amount))
-      console.log({ participant, amount, paid })
-    })
-  ctx.body = render('project-balance', { project, balance: [...balance.entries()] })
+  const balance = computeBalance(lines)
+  ctx.body = render('project-balance', { project, balance })
 });
 
 app

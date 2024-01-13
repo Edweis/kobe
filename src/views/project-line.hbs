@@ -1,15 +1,22 @@
 {{#> body }}
 <script>
+  const round = (value, digits) =>Number(value.toFixed(digits))
   function computeSplit(){
+   const DECIMALS = 2
    const checked = document.querySelectorAll('input[data-included]:checked')
    const total = Number(document.querySelector('input[name=amount]').value) ?? 0 
-   const amount = checked.length === 0 ? 0 : total / checked.length
-   console.log('SPLITING !')
+   const amount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)
+   let remaining = round(total - amount * checked.length, DECIMALS) // remaining cents lots in rounding
    
    document.querySelectorAll('input[data-included]').forEach(el => {
     const participant = el.attributes['data-included'].value
     const ouput = el.nextElementSibling.nextElementSibling.nextElementSibling
-    ouput.value = el.checked ? amount : 0
+    if(el.checked){
+      if(remaining) {
+        ouput.value = round(amount+ remaining, DECIMALS)
+        remaining = 0
+      } else ouput.value = amount
+    } else ouput.value = 0 
    })
   }
   function deleteLine(){
