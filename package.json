@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:tailwind": "tailwindcss -i ./src/tailwind-styles.css -o ./src/styles.css --watch",
+    "start:tailwind": "tailwindcss -i ./src/tailwind-styles.css -o ./src/assets/styles.css --watch",
     "start:node": "nodemon -e hbs,js --watch src src/index.js ",
     "start": "concurrently \"npm:start:*\"",
     "deploy": "sh deploy.sh"

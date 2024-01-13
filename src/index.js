@@ -6,6 +6,7 @@ import bodyParser from 'koa-bodyparser'
 import db from './lib/db.js';
 import { computeBalance, computeExpenses, randKey } from './lib/helpers.js'
 import dayjs from 'dayjs';
+import { assetsRouter } from './static.js';
 const app = new Koa();
 const router = new Router();
 
@@ -14,31 +15,18 @@ app
   .use(bodyParser())
   .use(async (ctx, next) => {
     console.log(ctx.method, ctx.path)
-    try{
+    try {
       await next()
-    } catch(error){
+    } catch (error) {
       ctx.status = 500
-      ctx.body = {...error, message:error.message}
+      ctx.body = { ...error, message: error.message }
     }
   })
 
-const currencies = ["EUR","IDR", "SGD", "USD"]
+const currencies = ["EUR", "IDR", "SGD", "USD"]
 
 // Statics
-router.get('/styles.css', async (ctx) => {
-  ctx.set('content-type', 'text/css')
-  ctx.body = fs.readFileSync('./src/styles.css')
-});
-router.get('/alpine.js', async (ctx) => {
-  ctx.set('content-type', 'application/javascript')
-  ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
-  ctx.body = fs.readFileSync('./src/lib/alpine.js')
-});
-router.get('/icon.svg', async (ctx) => {
-  ctx.set('content-type', 'image/svg+xml')
-  ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
-  ctx.body = fs.readFileSync('./src/assets/icon.svg')
-});
+router.use('/assets', assetsRouter.routes());
 
 // Endpoints
 router.get('/', async (ctx) => {
