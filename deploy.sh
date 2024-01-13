@@ -23,7 +23,7 @@ ssh $USER@$SERVER pm2 reload kobe
 
 
 ## Starting  pm2 for the first time
-# pm2 start ./src/index.js \
+# NODE_ENV=production pm2 start ./src/index.js \
 #     --name kobe --time \
 #     -o $HOME/.pm2/logs/kobe-logs.log -e $HOME/.pm2/logs/kobe-logs.log
 # pm2 save
