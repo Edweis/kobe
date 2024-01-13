@@ -14,6 +14,17 @@ assetsRouter.get('/alpine.js', async (ctx) => {
   ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
 });
+assetsRouter.get('/serviceworker.js', async (ctx) => {
+  ctx.set('content-type', 'application/javascript')
+  ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
+  ctx.set('Service-Worker-Allowed', '/') //@see https://w3c.github.io/ServiceWorker/#service-worker-allowed
+  ctx.body = await fs.readFile('./src/assets/serviceworker.js')
+});
+assetsRouter.get('/manifest.json', async (ctx) => {
+  ctx.set('content-type', 'application/json')
+  ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
+  ctx.body = await fs.readFile('./src/assets/manifest.json')
+});
 assetsRouter.get('/:img', async (ctx) => {
   const img = ctx.params.img
   console.log({ img })
