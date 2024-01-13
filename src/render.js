@@ -17,6 +17,10 @@ Handlebars.registerHelper('json', function (arg1, options) {
 Handlebars.registerHelper('parse', function (arg1, options) {
   return JSON.parse(arg1)
 })
+Handlebars.registerHelper('ifEq', function (arg1, arg2,options) {
+  if(arg1===arg2) return options.fn(this)
+  return options.inverse(this)
+})
 
 // Partials
 const partialPath = root + '/views/partials/body.hbs'

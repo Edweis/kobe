@@ -38,9 +38,9 @@
   </label>
   <label class="form-control">
     <span class="label label-text">Paid by</span>
-    <select value="{{line.paid}}" name="paid"  class="select select-bordered">
+    <select  name="paid"  class="select select-bordered">
       {{#each project.participants}}
-      <option value="{{this}}">{{this}}</option>
+      <option value="{{this}}" {{#ifEq this ../line.paid}}selected{{/ifEq}}>{{this}}</option>
       {{/each}}
     </select>
   </label>
