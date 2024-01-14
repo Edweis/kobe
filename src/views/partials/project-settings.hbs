@@ -8,22 +8,21 @@
 
 <header>
   <h1>Settings</h1>
-  <span>{{project.name}}</span>
+  <span x-text="project.name"></span>
 </header>
 <nav>
-  <a href="/project/{{project.id}}/balance">Back</a>
+  <a :href="'/#projects/'+projectId+'/balance'">Back</a>
 </nav>
 <div>
   Participants:
   <ul class="grid pl-4 gap-2 pt-2">
-    {{#each project.participants}}
+    <template x-for="participant in project.participants">
     <label class="flex gap-4 items-center">
-      <input name="me" value="{{this}}" type="radio" class="radio radio-sm"/>
-      {{this}}
+      <input name="me" x-model="participant" type="radio" class="radio radio-sm"/>
+      <span x-text="participant"></span>
     </label>
-    {{else}}
-    (no participants)
-    {{/each}}
+    </template>
+    <span x-show="project.participants.length===0">(no participants)</span>
     <form action="/project/{{project.id}}/participant" method="post" onsubmit="requestName(event)">
       <input name="participant" type="hidden"/>
       <button class="link">Add a participant</button>
@@ -34,10 +33,10 @@
 <form action="/project/{{project.id}}/settings" method="post">
   <label>
     <span class="label label-text">Currency</span>
-    <select name="currency" class="select select-bordered" onchange="event.target.form.submit()">
-      {{#each currencies}}
-      <option value="{{this}}" {{#ifEq this ../project.currency}}selected=""{{/ifEq}}>{{this}}</option>
-      {{/each}}
+    <select x-model="project.currency" name="currency" class="select select-bordered" onchange="event.target.form.submit()">
+      <template x-for="currency in currencies">
+      <option :value="currency" x-text="currency"></option>
+      </template>
     </select>
   </label>
 </form>

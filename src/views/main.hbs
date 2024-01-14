@@ -72,7 +72,7 @@
     path: getPath(), search: undefined,
     projects:[], allLines:[],  
     projectId: undefined, lineId: undefined,
-    project: {}, lines: [], line: {split:[]},
+    project: {participants:[]}, lines: [], line: {split:[]},
     currencies: ['EUR', 'IDR', 'SGD', 'USD']
   }"
   x-init="
@@ -80,9 +80,9 @@
     addEventListener('hashchange', () => { path = getPath() });
   ";
   x-effect="
-    project = projects.find(p => p.id === projectId) || {}
+    project = projects.find(p => p.id === projectId) ||{ participants:[]}
     lines = allLines.filter(l => l.project_id === projectId).filter(l => search==null || searchStr(l.name, search))
-    line =  allLines.find(  l => l.project_id === projectId && l.id === lineId) || {split:[]}
+    line  =   allLines.find(l => l.project_id === projectId && l.id === lineId) || {split:[]}
     console.log(JSON.parse(JSON.stringify($data)))
   "
 
@@ -96,7 +96,7 @@
 {{!-- /projects/:projectId --}}
 <section 
   x-show="path[0] === 'projects' && path.length === 2" 
-  x-init="projectId = path[1]"
+  x-effect="projectId = path[1]"
 >
   {{> projects}}
 </section>
@@ -104,7 +104,7 @@
 {{!-- /projects/:projectId/balance --}}
 <section 
   x-show="path[0] === 'projects' && path[2] === 'balance' && path.length === 3" 
-  x-init="projectId = path[1]"
+  x-effect="projectId = path[1]"
 >
   {{> project-balance}}
 </section>
@@ -112,7 +112,7 @@
 {{!-- /projects/:projectId/settings --}}
 <section 
   x-show="path[0] === 'projects' && path[2] === 'settings' && path.length === 3" 
-  x-init="projectId = path[1]"
+  x-effect="projectId = path[1]"
   >
   {{> project-settings}}
 </section>
@@ -120,7 +120,7 @@
 {{!-- /projects/:projectId/reim --}}
 <section 
   x-show="path[0] === 'projects' && path[2] === 'reim' && path.length === 3" 
-  x-init="projectId = path[1]"
+  x-effect="projectId = path[1]"
 >
   {{> project-reim}}
 </section>
@@ -128,7 +128,7 @@
 {{!-- /projects/:projectId/lines/:lineId --}}
 <section 
   x-show="path[0] === 'projects' && path[2] === 'lines' && path.length === 4" 
-  x-init="projectId = path[1]; lineId = path[3]"
+  x-effect="projectId = path[1]; lineId = path[3]; console.log({lineId})"
 >
   {{> project-line}}
 </section>
