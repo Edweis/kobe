@@ -639,6 +639,12 @@ html {
   --tw-backdrop-sepia:  ;
 }
 
+.avatar.placeholder > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (hover:hover) {
   .label a:hover {
     --tw-text-opacity: 1;
@@ -1501,6 +1507,11 @@ html {
   border-radius: 0.375rem;
 }
 
+.border-y {
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+
 .bg-error\/50 {
   background-color: var(--fallback-er,oklch(var(--er)/0.5));
 }
@@ -1512,6 +1523,10 @@ html {
 
 .p-8 {
   padding: 2rem;
+}
+
+.p-2 {
+  padding: 0.5rem;
 }
 
 .px-0 {

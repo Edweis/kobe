@@ -13,17 +13,6 @@
     console.log({amount, ratio, max})
     return `width: ${width}%; left: ${left}%`
   }
-  function computeExpenses(lines){
-    const expenses = new Map()
-    lines
-      .flatMap(l => l.split.map(ll => ({ ...ll, paid: l.paid })))
-      .forEach(({ participant, amount, paid }) => {
-        expenses.set(paid, (expenses.get(paid) || 0) + Number(amount))
-        expenses.set(participant, (expenses.get(participant) || 0) - Number(amount))
-      });
-    console.log('computeExpenses' , {lines:[...lines], expenses} )
-    return [...expenses.entries()]
-  }
 </script>
 
 <header>
@@ -36,7 +25,7 @@
   <a :href="'/#projects/'+projectId+'/settings'">Settings</a>
 </nav>
 <div class="grid gap-2 mt-8" x-data="{ expenses: []}" x-effect="expenses = computeExpenses(lines)">
-  <template x-for="expense in expenses">
+  <template x-for="expense in [...expenses.entries()]">
   <article :class="expense[1]<0 && 'flex-row-reverse'" class="relative flex gap-8 py-2 items-center" x-data="{}" :data-amount="expense[1]">
     <div x-text="expense[0]" :class="expense[1]>=0 && 'text-right'" class="w-full"></div>
     <div x-text="toCurrency(project.currency, expense[1])" :class="expense[1]<0 && 'text-right'" class="w-full"></div>

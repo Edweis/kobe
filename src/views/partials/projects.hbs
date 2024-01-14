@@ -4,13 +4,13 @@
 </header>
 <nav>
   <a href="#">Back</a>
-  <a x-show="qs.q != null" :href="'/#projects/'+projectId">Close search</a>
-  <a x-show="qs.q == null" :href="'/?q=#projects/'+projectId">Search</a>
+  <a x-show="search != null" @click="search=undefined">Close search</a>
+  <a x-show="search == null" @click="search=''">Search</a>
   <a :href="'#projects/'+projectId+'/balance'">Balance</a>
 </nav>
 
-<form x-show="qs.q != null" action="" method="get">
-  <input type="search" class="input input-bordered w-full" name="q" :model="qs.q" autofocus=""/>
+<form>
+  <input x-show="search != null" x-model="search" type="search" class="input input-bordered w-full" name="q" autofocus="" placeholder="Search ..." autocomplete="off"/>
 </form>
 
 <div class="flex flex-col gap-2 pb-12 h-full overflow-y-scroll px-0">

@@ -8,26 +8,22 @@
 
 <header>
   <h1>Reimburse</h1>
-  <span>{{project.name}}</span>
+  <span x-text="project.name"></span>
 </header>
 <nav>
-  <a href="/project/{{project.id}}">Back</a>
-  <a href="/project/{{project.id}}/balance">Balance</a>
-  <a href="/project/{{project.id}}/settings">Settings</a>
+  <a :href="'/#projects/'+projectId">Back</a>
+  <a :href="'/#projects/'+projectId+'/balance'">Balance</a>
+  <a :href="'/#projects/'+projectId+'/settings'">Settings</a>
 </nav>
-<div class="grid gap-4">
-  {{#each balance}}
-  <hr class="hidden first:block"></hr>
-  <article class="flex items-center justify-between">
+<div class="grid gap-2" x-data="{balances: []}" x-effect="balances = computeBalance(computeExpenses(lines)) ">
+  <template x-for="balance in balances">
+  <article class="flex items-center justify-between border-y p-2">
     <div class="grid">
-      <span class="text-xl text-primary font-semibold">{{this.to}}</span>
+      <span x-text="balance.to" class="text-xl text-primary font-semibold"></span>
       <span class="text-sm">owes</span>
-      <span class="text-xl text-primary font-semibold">{{this.from}}</span>
+      <span x-text="balance.from" class="text-xl text-primary font-semibold"></span>
     </div>
-    <div class="text-xl text-primary">
-      {{this.amount}}
-    </div>
+    <div x-text="toCurrency(project.currency, balance.amount)" class="text-xl text-primary"></div>
   </article>
-  <hr class=""></hr>
-  {{/each}}
+  </template>
 </div>

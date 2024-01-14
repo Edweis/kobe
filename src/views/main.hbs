@@ -7,9 +7,47 @@
       const hash = window.location.hash.replace('#', '')
       return hash.split('/').filter(Boolean)
     }
-    function getQs(){
-      return Object.fromEntries(new URLSearchParams(window.location.search)) 
+    function searchStr(value, search){
+      return value.toLowerCase().includes(search.toLowerCase())
     }
+
+    function randKey(prefix, length = 8) {
+      const keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      let res = '';
+      for (let i = 0; i < length; i++) {
+        const index = Math.floor(Math.random() * keys.length);
+        res += keys.charAt(index);
+      }
+      return prefix + res;
+    }
+
+    function computeBalance(expenses) {
+      let highest = { amount: -Infinity }
+      let lowest = { amount: Infinity }
+      expenses.forEach((amount, name) => {
+        if (amount == 0) return
+        if (highest.amount < amount) highest = { name, amount }
+        if (amount < lowest.amount) lowest = { name, amount }
+      })
+      if (highest.name === lowest.name) return []
+
+      expenses.delete(lowest.name);
+      expenses.set(highest.name, highest.amount + lowest.amount)
+      const tx = { from: lowest.name, to: highest.name, amount: -lowest.amount }
+      return [tx, ...computeBalance(expenses)]
+    }
+
+    function computeExpenses(lines){
+      const expenses = new Map()
+      lines
+        .flatMap(l => l.split.map(ll => ({ ...ll, paid: l.paid })))
+        .forEach(({ participant, amount, paid }) => {
+          expenses.set(paid, (expenses.get(paid) || 0) + Number(amount))
+          expenses.set(participant, (expenses.get(participant) || 0) - Number(amount))
+        });
+      return expenses
+    }
+
     const CURR_MAX_DEC = {"IDR":0,"BIF":0,"CLP":0,"DJF":0,"GNF":0,"ISK":0,"JPY":0,"KMF":0,"KRW":0,"PYG":0,"RWF":0,"UGX":0,"UYI":0,"VND":0,"VUV":0,"XAF":0,"XOF":0,"XPF":0,"BHD":3,"IQD":3,"JOD":3,"KWD":3,"LYD":3,"OMR":3,"TND":3,"CLF":4,"UYW":4}
     function toCurrency(curr, amount){
       const digits = CURR_MAX_DEC[curr]??2
@@ -24,16 +62,6 @@
       const month = months[date.getMonth()];
       return `${day} ${month}`;
     }
-    function randKey(prefix, length = 8) {
-      const keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-      let res = '';
-      for (let i = 0; i < length; i++) {
-        const index = Math.floor(Math.random() * keys.length);
-        res += keys.charAt(index);
-      }
-      return prefix + res;
-    }
-
   </script>
 {{/head}}
 
@@ -41,7 +69,7 @@
   class="flex flex-col gap-4 pt-4 h-screen" 
   x-cloak="" 
   x-data="{ 
-    path: getPath(), qs: getQs(), 
+    path: getPath(), search: undefined,
     projects:[], allLines:[],  
     projectId: undefined, lineId: undefined,
     project: {}, lines: [], line: {split:[]},
@@ -53,8 +81,8 @@
   ";
   x-effect="
     project = projects.find(p => p.id === projectId) || {}
-    lines = allLines.filter(l => l.project_id === projectId)
-    line = lines.find(l => l.id === lineId) || {split:[]}
+    lines = allLines.filter(l => l.project_id === projectId).filter(l => search==null || searchStr(l.name, search))
+    line =  allLines.find(  l => l.project_id === projectId && l.id === lineId) || {split:[]}
     console.log(JSON.parse(JSON.stringify($data)))
   "
 
@@ -94,7 +122,7 @@
   x-show="path[0] === 'projects' && path[2] === 'reim' && path.length === 3" 
   x-init="projectId = path[1]"
 >
-  {{> project-settings}}
+  {{> project-reim}}
 </section>
 
 {{!-- /projects/:projectId/lines/:lineId --}}
