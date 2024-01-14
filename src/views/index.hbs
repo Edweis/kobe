@@ -8,15 +8,13 @@
 </script>
 
 <h1>Kobe</h1>
-<ul class="list-disc pl-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4  gap-4">
   {{#each projects}}
-  <li>
-    <a href="project/{{this.id}}" class="link block">
-      <h3>{{this.name}}</h3>
-    </a>
-  </li>
+  <a href="project/{{this.id}}" class="p-8 rounded-md shadow-xl bg-primary hover:bg-primary/70 transition-colors">
+    <h2 class="text-xl font-semibold text-center ">{{this.name}}</h2>
+  </a>
   {{/each}}
-</ul>
+</div>
 <form action="/project" method="post" onsubmit="requestName(event)">
   <input name="name" type="hidden"/>
   <button class="absolute right-4 bottom-4 btn btn-lg btn-primary btn-circle">
