@@ -7,12 +7,13 @@ const root = './src'
 const CURR_MAX_DEC = {"IDR":0,"BIF":0,"CLP":0,"DJF":0,"GNF":0,"ISK":0,"JPY":0,"KMF":0,"KRW":0,"PYG":0,"RWF":0,"UGX":0,"UYI":0,"VND":0,"VUV":0,"XAF":0,"XOF":0,"XPF":0,"BHD":3,"IQD":3,"JOD":3,"KWD":3,"LYD":3,"OMR":3,"TND":3,"CLF":4,"UYW":4}
 
 // Helpers
-Handlebars.registerHelper('currency', function (arg1, arg2) {
-  const digits = CURR_MAX_DEC[arg1]??2
-  return Intl
-    .NumberFormat(undefined, { style: 'currency', currency: arg1, minimumFractionDigits:digits, maximumFractionDigits:digits})
-    .format(arg2)
-})
+// Handlebars.registerHelper('currency', function (arg1, arg2) {
+//   const digits = CURR_MAX_DEC[arg1]??2
+//   console.log('XXXX', {arg1, arg2})
+//   return Intl
+//     .NumberFormat(undefined, { style: 'currency', currency: arg1, minimumFractionDigits:digits, maximumFractionDigits:digits})
+//     .format(arg2)
+// })
 Handlebars.registerHelper('date', function (arg1, options) {
   return dayjs(options.fn(this)).format(arg1)
 })

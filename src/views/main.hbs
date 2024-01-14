@@ -44,7 +44,7 @@
     path: getPath(), qs: getQs(), 
     projects:[], allLines:[],  
     projectId: undefined, lineId: undefined,
-    project: {}, lines: [], line: {},
+    project: {}, lines: [], line: {split:[]},
     currencies: ['EUR', 'IDR', 'SGD', 'USD']
   }"
   x-init="
@@ -54,7 +54,7 @@
   x-effect="
     project = projects.find(p => p.id === projectId) || {}
     lines = allLines.filter(l => l.project_id === projectId)
-    line = lines.find(l => l.id === lineId) || {}
+    line = lines.find(l => l.id === lineId) || {split:[]}
     console.log(JSON.parse(JSON.stringify($data)))
   "
 

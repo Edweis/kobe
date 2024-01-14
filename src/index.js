@@ -18,6 +18,7 @@ app
     try {
       await next()
     } catch (error) {
+      console.error(error)
       ctx.status = 500
       ctx.body = { ...error, message: error.message }
     }
