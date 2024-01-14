@@ -1521,12 +1521,12 @@ html {
   background-color: var(--fallback-p,oklch(var(--p)/var(--tw-bg-opacity)));
 }
 
-.p-8 {
-  padding: 2rem;
-}
-
 .p-2 {
   padding: 0.5rem;
+}
+
+.p-8 {
+  padding: 2rem;
 }
 
 .px-0 {
@@ -2223,10 +2223,6 @@ body > section > * {
 
 [x-cloak] {
   display: none !important;
-}
-
-.first\:block:first-child {
-  display: block;
 }
 
 .odd\:bg-primary\/10:nth-child(odd) {
