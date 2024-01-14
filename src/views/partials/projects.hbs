@@ -1,0 +1,38 @@
+<header>
+  <h1>{{project.name}}</h1>
+  <span>Spendings</span>
+</header>
+<nav>
+  <a href="#">Back</a>
+  <a x-show="qs.q != null" :href="'/#projects/'+projectId">Close search</a>
+  <a x-show="qs.q == null" :href="'/?q=#projects/'+projectId">Search</a>
+  <a :href="'#projects/'+projectId+'/balance'">Balance</a>
+</nav>
+
+<form x-show="qs.q != null" action="" method="get">
+  <input type="search" class="input input-bordered w-full" name="q" :model="qs.q" autofocus=""/>
+</form>
+
+<div class="flex flex-col gap-2 pb-12 h-full overflow-y-scroll px-0">
+  <template x-for="line in lines">
+  <a :href="'#projects/'+projectId+'/lines/'+line.id" class="odd:bg-primary/10 even:bg-secondary/10 py-2 px-4">
+    <article class="grid">
+      <div class="flex justify-between">
+        <h3 x-text="line.name" class="text-primary font-semibold text-xl"></h3>
+        <span x-text="toCurrency(line.currency, line.amount)" class="text-primary"></span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <p x-text="'Paid by '+line.paid"></p>
+        <p x-text="shortDate(line.created_at)"></p>
+      </div>
+    </article>
+  </a>
+  </template>
+</div>
+<a href="'#'+projectId+'/line/lin_'+randKey()">
+  <button class="absolute right-4 bottom-4 btn btn-lg btn-primary btn-circle">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  </button>
+</a>

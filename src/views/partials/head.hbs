@@ -1,0 +1,14 @@
+<head>
+  <meta charset="UTF-8"  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{default title "Kobe"}}</title>
+  <link href="/assets/styles.css" rel="stylesheet">
+  <script src="/assets/alpine.js" defer=""></script>
+  <link rel="shortcut icon" type="image/svg+xml" href="/assets/icon-512x512.png"/>
+  <link rel="manifest" href="/manifest.json" />
+  <script>
+    //if ("serviceWorker" in navigator) 
+    //  navigator.serviceWorker.register("/assets/serviceworker.js", { scope: "./" }).then(console.log)
+  </script>
+  {{> @partial-block }}
+</head>

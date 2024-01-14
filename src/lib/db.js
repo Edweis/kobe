@@ -48,15 +48,15 @@ if(!IS_PROD){
 
   -- Insert lines
   INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_2', '2024-01-03', 'Grab', 133024, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
+  VALUES ('lin_2', '2024-01-03T00:00:01', 'Grab', 133024, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
   ON CONFLICT (id, project_id) DO NOTHING;
 
   INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_3', '2024-01-02', 'Beers', 429762, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
+  VALUES ('lin_3', '2024-01-02T00:12:01', 'Beers', 429762, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
   ON CONFLICT (id, project_id) DO NOTHING;
 
   INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_4', '2024-01-01', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
+  VALUES ('lin_4', '2024-01-01T00:43:01', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
   ON CONFLICT (id, project_id) DO NOTHING;
   `)
 }

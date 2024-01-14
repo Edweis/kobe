@@ -26,12 +26,19 @@ app
 const currencies = ["EUR", "IDR", "SGD", "USD"]
 
 // Statics
-router.use( assetsRouter.routes());
+router.use(assetsRouter.routes());
 
 // Endpoints
 router.get('/', async (ctx) => {
-  const projects = await db.all('SELECT * FROM projects')
-  ctx.body = render('index', { projects })
+  ctx.body = render('main')
+});
+
+router.get('/data.json', async (ctx) => {
+  let projects = await db.all('SELECT * FROM projects')
+  projects = projects.map(p => ({ ...p, participants: JSON.parse(p.participants) }))
+  let lines = await db.all('SELECT * FROM lines')
+  lines = lines.map(l => ({ ...l, split: JSON.parse(l.split) }))
+  ctx.body = { projects, lines }
 });
 
 router.post('/project', async (ctx) => {

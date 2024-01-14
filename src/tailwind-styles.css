@@ -19,10 +19,16 @@ h3 {
   @apply text-xl
 }
 
-body > * {
+body > section {
+  @apply flex flex-col gap-4
+}
+body > section > * {
   @apply px-4 container mx-auto
 }
 
 .label {
   @apply pb-0 pl-0
 }
+
+/*For Alpinsjs transitions @see https://alpinejs.dev/directives/cloak */
+[x-cloak] { display: none !important; } 
