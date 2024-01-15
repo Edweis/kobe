@@ -49,10 +49,11 @@ router.post('/data.json', async (ctx) => {
   await Promise.all(promises)
 
   let projects = await db.all('SELECT * FROM projects')
-  console.log(projects)
   projects = projects.map(p => ({ ...p, participants: JSON.parse(p.participants) }))
-  let lines = await db.all('SELECT * FROM lines')
+  let lines = await db.all('SELECT * FROM lines ORDER BY created_at DESC')
   lines = lines.map(l => ({ ...l, split: JSON.parse(l.split) }))
+
+  await new Promise(res => setTimeout(res, 5000))
   ctx.body = { projects, lines }
 });
 
