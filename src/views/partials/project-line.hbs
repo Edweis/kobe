@@ -26,21 +26,40 @@
     }
     else event.preventDefault()
   }
+  function nowForInput(){
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    now.setSeconds(0)
+    return now.toISOString().split('.')[0]
+  }
+  function getFormData(formEl){
+    const data = {}
+    new FormData(formEl).forEach((value, key)=>{
+      if(key.startsWith('split')) {
+        const [,index, subKey] = /split\[(\d)\]\[(\w+)\]/.exec(key)
+        if(data.split==null) data.split = []
+        if(data.split[index]==null) data.split[index] = {}
+        data.split[index][subKey] = value
+      }
+      else data[key] = value
+    })
+    return data
+  }
 </script>
 
 <header>
-  <h1 x-text="line.name"></h1>
+  <h1 x-text="line.name || 'New'"></h1>
   <span x-text="project.name"></span>
 </header>
 <nav>
-  <a :href="'#projects/'+projectId">Back</a>
+  <a :href="'#projects/'+projectId" id="back-project">Back</a>
 </nav>
-<form class="grid" method="post" action="">
+<form class="grid" @submit.prevent="allLines.push(getFormData(event.target)); history.back()">
   <input type="hidden" name="project_id" x-model="projectId" />
   <input type="hidden" name="id" x-model="lineId" />
   <label class="form-control">
     <span class="label label-text">Title</span>
-    <input name="name" class="input input-bordered" :value="line.name" autofocus="" />
+    <input name="name" class="input input-bordered" :value="line.name" autofocus="" required="" />
   </label>
   <label class="form-control">
     <span class="label label-text">Amount</span>
@@ -55,7 +74,7 @@
   </label>
   <label class="form-control">
     <span class="label label-text">Date</span>
-    <input type="datetime-local" name="created_at" x-model="line.created_at" class="input input-bordered" />
+    <input type="datetime-local" name="created_at" :value="line.created_at || nowForInput()" @change="line.created_at = event.target.value" class="input input-bordered" />
   </label>
   <label class="form-control">
     <span class="label label-text">Paid by</span>

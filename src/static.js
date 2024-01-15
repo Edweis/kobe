@@ -11,7 +11,7 @@ assetsRouter.get('/assets/styles.css', async (ctx) => {
 });
 assetsRouter.get('/assets/alpine.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
-  ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
+  // ctx.set('Cache-Control', 'public, max-age=31536000, immutable')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
 });
 assetsRouter.get('/assets/serviceworker.js', async (ctx) => {
