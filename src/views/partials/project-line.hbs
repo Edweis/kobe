@@ -56,7 +56,7 @@
 </nav>
 <form class="grid" @submit.prevent="allLines.push(getFormData(event.target)); history.back()">
   <input type="hidden" name="project_id" x-model="projectId" />
-  <input type="hidden" name="pushedAt" :value="new Date().toISOString()" />
+  <input type="hidden" name="pending" :value="new Date().toISOString()" />
   <input type="hidden" name="id" x-model="lineId" />
   <label class="form-control">
     <span class="label label-text">Title</span>

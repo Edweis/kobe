@@ -1,5 +1,5 @@
 <header>
-  <h1 x-text="project.name + (project.pushedAt ? '...' : '')"></h1>
+  <h1 x-text="project.name + (project.pending ? '...' : '')"></h1>
   <span>Spendings</span>
 </header>
 <nav>
@@ -18,7 +18,7 @@
   <a :href="'#projects/'+projectId+'/lines/'+line.id" class="odd:bg-primary/10 even:bg-secondary/10 py-2 px-4">
     <article class="grid">
       <div class="flex justify-between">
-        <h3 x-text="line.name + (line.pushedAt ? '...': '')" class="text-primary font-semibold text-xl"></h3>
+        <h3 x-text="line.name + (line.pending ? '...': '')" class="text-primary font-semibold text-xl"></h3>
         <span x-text="toCurrency(line.currency, line.amount)" class="text-primary"></span>
       </div>
       <div class="flex justify-between text-sm">
@@ -29,7 +29,7 @@
   </a>
   </template>
 </div>
-<span x-show="lines.length ===0">You don't have any spending yet.</span>
+<span x-show="lines.length ===0">You don&apos;t have any spending yet.</span>
 <a :href="'/#projects/'+projectId+'/lines/'+randKey('lin_')">
   <button class="absolute right-4 bottom-4 btn btn-lg btn-primary btn-circle">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">

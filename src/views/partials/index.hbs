@@ -2,7 +2,7 @@
   function addProject(event){
     const name = prompt('New project name');
     if(name==null) return []
-    const nextProject = {id: randKey('pro_'), name, participants:[], currency: 'EUR', pushedAt: new Date().toISOString()};
+    const nextProject = {id: randKey('pro_'), name, participants:[], currency: 'EUR', pending: new Date().toISOString()};
     return [nextProject]
   }
 </script>

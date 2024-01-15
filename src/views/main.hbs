@@ -73,17 +73,34 @@
     projects:[], allLines:[],  
     projectId: undefined, lineId: undefined,
     project: {participants:[]}, lines: [], line: {split:[]},
-    currencies: ['EUR', 'IDR', 'SGD', 'USD']
+    currencies: ['EUR', 'IDR', 'SGD', 'USD'],
+
+    sync(projects=[], lines=[]){
+      return fetch('/data.json', { 
+        method: 'POST', 
+        body: JSON.stringify({ projects, lines }),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(r => r.json())
+    }
   }"
   x-init="
-    fetch('/data.json').then(r => r.json()).then(data => { projects = data.projects; allLines = data.lines; console.log({data}) })
+    console.log($data, sync)
+    sync([], []).then(res => {
+      projects = res.projects; allLines = res.lines
+    })
     addEventListener('hashchange', () => { path = getPath() });
   ";
   x-effect="
     project = projects.find(p => p.id === projectId) ||{ participants:[]}
     lines = allLines.filter(l => l.project_id === projectId).filter(l => search==null || searchStr(l.name, search))
     line  =   allLines.find(l => l.project_id === projectId && l.id === lineId) || {split:[]}
-    console.log(JSON.parse(JSON.stringify($data)))
+    
+    pendingProjects = projects.filter(p=>p.pending)
+    pendingLines = allLines.filter(p=>p.pending);
+    if(pendingProjects.length || pendingLines.length) 
+      sync(pendingProjects,pendingLines).then(res => {
+        projects = res.projects; allLines = res.lines
+      })
   "
 
 >
