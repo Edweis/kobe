@@ -77,8 +77,7 @@
     }
   }"
   x-init="
-    console.log($data, sync)
-    sync([], []).then(res => {
+    fetch('/data.json').then(res => res.json()).then(res => {
       projects = res.projects; allLines = res.lines
     })
     addEventListener('hashchange', () => { path = getPath() });
@@ -138,7 +137,7 @@
 {{!-- /projects/:projectId/lines/:lineId --}}
 <section 
   x-show="path[0] === 'projects' && path[2] === 'lines' && path.length === 4" 
-  x-effect="projectId = path[1]; lineId = path[3]; console.log({lineId})"
+  x-effect="projectId = path[1]; lineId = path[3]"
 >
   {{> project-line}}
 </section>

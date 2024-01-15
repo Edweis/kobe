@@ -7,8 +7,8 @@
   <link rel="shortcut icon" type="image/svg+xml" href="/assets/icon-512x512.png"/>
   <link rel="manifest" href="/manifest.json" />
   <script>
-    //if ("serviceWorker" in navigator) 
-    //  navigator.serviceWorker.register("/assets/serviceworker.js", { scope: "./" }).then(console.log)
+    if ("serviceWorker" in navigator) 
+      navigator.serviceWorker.register("/serviceworker.js", { scope: "." }).then(console.log, console.error)
   </script>
   {{> @partial-block }}
 </head>
