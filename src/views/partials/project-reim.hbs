@@ -17,7 +17,7 @@
 </nav>
 <div class="grid gap-2" x-data="{balances: []}" x-effect="balances = computeBalance(computeExpenses(lines)) ">
   <template x-for="balance in balances">
-  <article class="flex items-center justify-between border-y p-2">
+  <article class="flex items-center justify-between border-b first-of-type:border-t p-2">
     <div class="grid">
       <span x-text="balance.to" class="text-xl text-primary font-semibold"></span>
       <span class="text-sm">owes</span>
