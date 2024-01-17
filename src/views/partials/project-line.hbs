@@ -66,7 +66,7 @@
     <span class="label label-text">Amount</span>
     <div class="flex gap-2">
       <input name="amount" :value="line.amount"  class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" oninput="computeSplit()" required=""  />
-      <select name="currency" class="select select-bordered" x-model="line.currency">
+      <select name="currency" class="select select-bordered" :value="line.currency || project.currency" @click="line.currency = event.target.value">
         <template x-for="currency in currencies">
         <option :value="currency" x-text="currency"></option>
         </template>
