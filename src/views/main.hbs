@@ -8,7 +8,9 @@
       return hash.split('/').filter(Boolean)
     }
     function searchStr(value, search){
-      return value.toLowerCase().includes(search.toLowerCase())
+      const normValue = value.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase()
+      const normSearch = search.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase()
+      return normValue.includes(normSearch)
     }
 
     function randKey(prefix, length = 8) {
@@ -89,6 +91,7 @@
     
     pendingProjects = projects.filter(p=>p.pending)
     pendingLines = allLines.filter(p=>p.pending);
+    console.log({pendingLines})
     if(pendingProjects.length || pendingLines.length) 
       sync(pendingProjects,pendingLines).then(res => {
         projects = res.projects; allLines = res.lines

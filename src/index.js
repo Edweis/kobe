@@ -21,7 +21,6 @@ app
     }
   })
 
-const CACHE_DEFAULT = 'public, max-age=31536000, immutable'
 
 // Helpers
 const insertLine = (l) => db.run(`
@@ -38,7 +37,6 @@ const insertProject = (p) => db.run(`
 
 // Endpoints
 router.get('/', async (ctx) => {
-  ctx.set('Cache-Control', CACHE_DEFAULT)
   ctx.body = render('main')
 });
 
@@ -48,7 +46,6 @@ router.get('/data.json', async (ctx) => {
   let lines = await db.all('SELECT * FROM lines ORDER BY created_at DESC')
   lines = lines.map(l => ({ ...l, split: JSON.parse(l.split) }))
 
-  ctx.set('Cache-Control', 'private, max-age=604800, stale-if-error=86400')
   ctx.body = { projects, lines }
 });
 
@@ -66,29 +63,26 @@ router.post('/data.json', async (ctx) => {
 //assets
 router.get('/assets/styles.css', async (ctx) => {
   ctx.set('content-type', 'text/css')
-  ctx.set('Cache-Control', CACHE_DEFAULT)
   ctx.body = await fs.readFile('./src/assets/styles.css')
 });
 router.get('/assets/alpine.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
-  ctx.set('Cache-Control', CACHE_DEFAULT)
+  ctx.set('Cache-Control', 'public, max-age=31536000')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
 });
 router.get('/serviceworker.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
-  ctx.set('Cache-Control', CACHE_DEFAULT)
   ctx.body = await fs.readFile('./src/assets/serviceworker.js')
 });
 router.get('/manifest.json', async (ctx) => {
   ctx.set('content-type', 'application/json')
-  ctx.set('Cache-Control', CACHE_DEFAULT)
   ctx.body = await fs.readFile('./src/assets/manifest.json')
 });
 router.get('/assets/:img', async (ctx) => {
   const img = ctx.params.img
   if (/icon-\d+x\d+\.(png|ico)/.test(img)) {
     ctx.set('content-type', 'image/png')
-    ctx.set('Cache-Control', CACHE_DEFAULT)
+    ctx.set('Cache-Control', 'public, max-age=31536000')
     const image = await fs.readFile('./src/assets/' + img).catch(() => undefined)
     if (image) ctx.body = image
   }
