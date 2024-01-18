@@ -4,7 +4,9 @@
     const date = new Date(dateString);
     const day = date.getDate();
     const month = months[date.getMonth()];
-    return `${date.getDate()} ${month}, ${date.getHours()}:${date.getMinutes()}`;
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    return `${date.getDate()} ${month}, ${hours}:${minutes}`;
   }
 </script>
 <header>
@@ -25,13 +27,21 @@
 <div class="flex flex-col gap-2 pb-12 h-full overflow-y-scroll px-0">
   <template x-for="line in lines">
   <a :href="'#projects/'+projectId+'/lines/'+line.id" class="odd:bg-primary/10 even:bg-secondary/10 py-2 px-4">
-    <article class="grid">
+    <article 
+      class="grid" 
+      x-data="{myImpact: 0 }" 
+      x-effect="mySplit = line.split.find(s => s.participant===whoiam)?.amount || 0 
+                didIPaid = line.paid===whoiam
+                if(didIPaid) myImpact = line.amount - mySplit
+                else myImpact = -mySplit
+      "
+    >
       <div class="flex justify-between">
         <h3 x-text="line.name + (line.pending ? '...': '')" class="text-primary font-semibold text-xl"></h3>
-        <span x-text="toCurrency(line.currency, line.amount)" class="text-primary"></span>
+        <span x-text="myImpact ? toCurrency(line.currency, myImpact) : '-'" :class="myImpact==null || myImpact > 0 ? 'text-primary' : 'text-red-400'"></span>
       </div>
       <div class="flex justify-between text-sm">
-        <p x-text="'Paid by '+line.paid"></p>
+        <p x-text="(line.paid===whoiam ? 'You' : line.paid) + ' paid '+toCurrency(line.currency, line.amount)"></p>
         <p x-text="shortDate(line.created_at)"></p>
       </div>
     </article>

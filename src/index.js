@@ -67,7 +67,6 @@ router.get('/assets/styles.css', async (ctx) => {
 });
 router.get('/assets/alpine.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
-  ctx.set('Cache-Control', 'public, max-age=31536000')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
 });
 router.get('/serviceworker.js', async (ctx) => {

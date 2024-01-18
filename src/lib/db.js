@@ -52,11 +52,11 @@ if(!IS_PROD){
   ON CONFLICT (id, project_id) DO NOTHING;
 
   INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_3', '2024-01-02T00:12', 'Beers', 429762, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
+  VALUES ('lin_3', '2024-01-02T00:12', 'Beers', 429762, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 214881}, {"participant": "kaille", "amount": 214881}]')
   ON CONFLICT (id, project_id) DO NOTHING;
 
   INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_4', '2024-01-01T00:43', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
+  VALUES ('lin_4', '2024-01-01T00:43', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 85365}, {"participant": "kaille", "amount": 85365}]')
   ON CONFLICT (id, project_id) DO NOTHING;
   `)
 }

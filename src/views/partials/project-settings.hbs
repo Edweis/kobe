@@ -35,8 +35,19 @@
     </div>
   </fieldset>
 
-    <h3>Currency</h3>
-  <fieldset >
+  <h3>I am:</h3>
+  <fieldset>
+    <select class="select select-bordered" @change="whoiam = event.target.value">
+      <option disabled="" :selected="'' === whoiam">Not defined</option>
+      <template x-for="participant in project.participants">
+      <option x-text="participant" :value="participant" :selected="participant === whoiam"></option>
+      </template>
+    </select>
+  </fieldset>
+
+
+  <h3>Currency</h3>
+  <fieldset>
     <select x-model="project.currency" name="currency" class="select select-bordered">
       <template x-for="currency in currencies">
       <option :value="currency" x-text="currency"></option>
