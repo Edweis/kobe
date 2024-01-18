@@ -1603,10 +1603,6 @@ html {
   transition-duration: 150ms;
 }
 
-header {
-  min-width: calc(100% - 10rem);
-}
-
 nav {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2212,6 +2208,12 @@ body > section > * {
   margin-right: auto;
   padding-left: 1rem;
   padding-right: 1rem;
+}
+
+@media (min-width: 1024px) {
+  body > section > * {
+    max-width: 48rem;
+  }
 }
 
 .label {

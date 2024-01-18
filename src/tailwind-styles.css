@@ -2,9 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-header {
-  min-width: calc(100% - 10rem);
-}
+
 nav {
   @apply grid gap-4 grid-cols-3
 }
@@ -23,7 +21,7 @@ body > section {
   @apply flex flex-col gap-4
 }
 body > section > * {
-  @apply px-4 container mx-auto
+  @apply px-4 container lg:max-w-3xl mx-auto
 }
 
 .label {
