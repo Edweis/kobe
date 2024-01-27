@@ -88,7 +88,7 @@
   x-effect="
     project = projects.find(p => p.id === projectId) ||{ participants:[]}
     lines = allLines.filter(l => l.project_id === projectId).filter(l => search==null || searchStr(l.name, search))
-    line  =   allLines.find(l => l.project_id === projectId && l.id === lineId) || {split:[]}
+    line  = allLines.find(l => l.project_id === projectId && l.id === lineId) || {split:[]};
     
     pendingProjects = projects.filter(p=>p.pending)
     pendingLines = allLines.filter(p=>p.pending);
@@ -141,7 +141,7 @@
 {{!-- /projects/:projectId/lines/:lineId --}}
 <section 
   x-show="path[0] === 'projects' && path[2] === 'lines' && path.length === 4" 
-  x-effect="projectId = path[1]; lineId = path[3]"
+  x-effect="projectId = path[1]; lineId = path[3]; console.log({lineId, path})"
 >
   {{> project-line}}
 </section>
