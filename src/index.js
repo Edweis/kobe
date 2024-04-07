@@ -24,9 +24,9 @@ app
 
 // Helpers
 const insertLine = (l) => db.run(`
-  INSERT OR REPLACE INTO lines (created_at, name, amount, currency, paid, split, project_id, id)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, 
-  [l.created_at, l.name, l.amount, l.currency, l.paid, JSON.stringify(l.split), l.project_id, l.id])
+  INSERT OR REPLACE INTO lines (created_at, name, amount, currency, paid, split, project_id, id, deleted_at)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, 
+  [l.created_at, l.name, l.amount, l.currency, l.paid, JSON.stringify(l.split), l.project_id, l.id, l.deleted_at])
 
 const insertProject = (p) => db.run(`
   INSERT OR REPLACE INTO projects (id, name, participants, currency)
@@ -43,7 +43,7 @@ router.get('/', async (ctx) => {
 router.get('/data.json', async (ctx) => {
   let projects = await db.all('SELECT * FROM projects')
   projects = projects.map(p => ({ ...p, participants: JSON.parse(p.participants) }))
-  let lines = await db.all('SELECT * FROM lines ORDER BY created_at DESC')
+  let lines = await db.all('SELECT * FROM lines WHERE deleted_at IS NULL ORDER BY created_at DESC')
   lines = lines.map(l => ({ ...l, split: JSON.parse(l.split) }))
 
   ctx.body = { projects, lines }

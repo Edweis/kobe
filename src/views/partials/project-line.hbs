@@ -18,14 +18,7 @@
     } else ouput.value = 0 
    })
   }
-  function deleteLine(){
-    const willDelete = confirm('Are you sure you want to delete?') 
-    if(willDelete) {
-       const form = event.target.closest('form')
-       form.action = form.action +'/delete'
-    }
-    else event.preventDefault()
-  }
+
   function nowForInput(){
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -55,6 +48,7 @@
   <a :href="'#projects/'+projectId" id="back-project">Back</a>
 </nav>
 <form class="grid" @submit.prevent="allLines.push(getFormData(event.target)); history.back()">
+  <input type="hidden" name="deleted_at" x-model="line.deletedAt" />
   <input type="hidden" name="project_id" x-model="projectId" />
   <input type="hidden" name="pending" :value="new Date().toISOString()" />
   <input type="hidden" name="id" x-model="lineId" />
@@ -98,6 +92,10 @@
   </ul>
   <div class="my-8 flex justify-start gap-8 flex-row-reverse">
     <button class="btn btn-primary">Save</button>
-    <button class="btn btn-warning" onclick="deleteLine(event)">Delete</button>
+    <button class="btn btn-warning" @click="
+      const shouldDelete = confirm('Are you sure you want to delete?')
+      if(!shouldDelete) event.preventDefault()
+      else line.deletedAt = new Date().toISOString();
+    ">Delete</button>
   </div>
 </form>

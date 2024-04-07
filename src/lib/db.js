@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS lines (
   id VARCHAR(50),
   created_at DATE NOT NULL,
+  deleted_at DATE,
   name VARCHAR(255) NOT NULL COLLATE NOCASE,
   amount INTEGER NOT NULL,
   currency VARCHAR(3) NOT NULL,
@@ -36,7 +37,12 @@ CREATE TABLE IF NOT EXISTS lines (
 );
 `,
 );
-console.log({IS_PROD})
+
+const {hasDeletedAt} = await database.get(`SELECT COUNT(*) as hasDeletedAt FROM pragma_table_info('lines') 
+          WHERE name = 'deleted_at'`)
+if(!hasDeletedAt) await database.exec(`ALTER TABLE lines ADD COLUMN deleted_at DATE DEFAULT NULL`)
+
+console.log({IS_PROD, hasDeletedAt})
 if(!IS_PROD){
   const projects = await database.all(`SELECT * FROM projects`)
   if (projects.length === 0)
@@ -71,6 +77,7 @@ if(!IS_PROD){
   VALUES ('lin_7', '2024-01-01T00:43', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 85365}, {"participant": "kaille", "amount": 85365}]')
   ON CONFLICT (id, project_id) DO NOTHING;
   `)
+  
 }
 
 export default database
