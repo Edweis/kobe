@@ -83,7 +83,7 @@
     <template x-for="(part, index) in project.participants">
     <li class="flex items-center gap-4" x-data="{ splitLine: undefined }" x-effect="splitLine = line.split.find(s => s.participant === part)" >
       <input :id="'part'+ index" :data-included="part" :checked="splitLine ==null || splitLine.amount > 0" type="checkbox" onclick="computeSplit()" class="checkbox"/>
-      <label :for="'part'+ index" class="flex items-center gap-4" x-text="part"></label>
+      <label :for="'part'+ index" class="flex items-center gap-4 whitespace-nowrap" x-text="part"></label>
       <input :name="'split['+index+'][participant]'" :value="part" type="hidden"/>
       <input :name="'split['+index+'][amount]'" :value="splitLine?.amount || 0" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
       <span x-text="line.currency"></span>

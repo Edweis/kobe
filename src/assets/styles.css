@@ -1475,6 +1475,10 @@ html {
   flex-direction: column;
 }
 
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
 .items-center {
   align-items: center;
 }
@@ -1505,6 +1509,10 @@ html {
 
 .overflow-y-scroll {
   overflow-y: scroll;
+}
+
+.whitespace-nowrap {
+  white-space: nowrap;
 }
 
 .rounded-md {
