@@ -25,6 +25,11 @@
 </form>
 
 <div class="flex flex-col gap-2 pb-12 h-full overflow-y-scroll px-0">
+  <a href="#" @click="$el.href='/#projects/'+projectId+'/lines/'+randKey('lin_')" class="btn btn-primary py-2 px-4 h-16 flex items-center justify-center">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  </a>
   <template x-for="line in lines">
   <a :href="'#projects/'+projectId+'/lines/'+line.id" class="odd:bg-primary/10 even:bg-secondary/10 py-2 px-4">
     <article 
@@ -49,10 +54,3 @@
   </template>
 </div>
 <span x-show="lines.length ===0" class="text-center">You don&apos;t have any spending yet.</span>
-<a href="#" @click="$el.href='/#projects/'+projectId+'/lines/'+randKey('lin_')">
-  <button class="fixed right-4 bottom-4 btn btn-lg btn-primary btn-circle">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-    </svg>
-  </button>
-</a>
