@@ -6,9 +6,9 @@
   <script src="/assets/alpine.js" defer=""></script>
   <link rel="shortcut icon" type="image/svg+xml" href="/assets/icon-512x512.png"/>
   <link rel="manifest" href="/manifest.json" />
-  <script>
+  {{!-- <script>
     if ("serviceWorker" in navigator) 
       navigator.serviceWorker.register("/serviceworker.js", { scope: "." }).then(console.log, console.error)
-  </script>
+  </script> --}}
   {{> @partial-block }}
 </head>

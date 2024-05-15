@@ -69,10 +69,10 @@ router.get('/assets/alpine.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
 });
-router.get('/serviceworker.js', async (ctx) => {
-  ctx.set('content-type', 'application/javascript')
-  ctx.body = await fs.readFile('./src/assets/serviceworker.js')
-});
+// router.get('/serviceworker.js', async (ctx) => {
+//   ctx.set('content-type', 'application/javascript')
+//   ctx.body = await fs.readFile('./src/assets/serviceworker.js')
+// });
 router.get('/manifest.json', async (ctx) => {
   ctx.set('content-type', 'application/json')
   ctx.body = await fs.readFile('./src/assets/manifest.json')
