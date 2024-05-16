@@ -6,9 +6,11 @@
   <script src="/assets/alpine.js" defer=""></script>
   <link rel="shortcut icon" type="image/svg+xml" href="/assets/icon-512x512.png"/>
   <link rel="manifest" href="/manifest.json" />
-  {{!-- <script>
-    if ("serviceWorker" in navigator) 
+  <script>
+    if(false)
       navigator.serviceWorker.register("/serviceworker.js", { scope: "." }).then(console.log, console.error)
-  </script> --}}
+    if ("serviceWorker" in navigator) 
+      navigator.serviceWorker.getRegistrations().then(registrations => { for (const registration of registrations) { registration.unregister(); } });
+  </script>
   {{> @partial-block }}
 </head>
