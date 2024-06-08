@@ -79,6 +79,7 @@ router.get('/manifest.json', async (ctx) => {
 });
 router.get('/assets/ah-card.jpg', async (ctx) => {
   ctx.set('content-type', 'image/jpeg')
+  ctx.set('Cache-Control', 'public, max-age=31536000')
   ctx.body = await fs.readFile('./src/assets/ah-card.jpg')
 });
 router.get('/assets/:img', async (ctx) => {

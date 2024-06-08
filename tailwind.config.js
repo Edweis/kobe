@@ -5,7 +5,7 @@ export default {
     extend: {},
   },
   daisyui: {
-    themes: ["cyberpunk"],
+    themes: ["sunset"],
   },
   plugins: [require('daisyui')],
 }
