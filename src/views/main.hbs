@@ -69,7 +69,7 @@
     projectId: undefined, lineId: undefined,
     project: {participants:[]}, lines: [], line: {split:[]},
     currencies: ['EUR', 'IDR', 'SGD', 'USD'],
-    whoiam: $persist(''),
+    whoiam: $persist && $persist(''),
 
     sync(projects=[], lines=[]){
       return fetch('/data.json', { 

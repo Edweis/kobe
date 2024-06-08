@@ -8,10 +8,10 @@
 </script>
 
 <h1>Kobe</h1>
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
   <template x-for="project in projects">
   <a :href="'#projects/'+project.id" class="p-8 rounded-md shadow-xl bg-primary hover:bg-primary/70 transition-colors">
-    <h2 x-text="project.name" class="text-xl font-semibold text-center "></h2>
+    <h2 x-text="project.name" class="text-xl font-semibold text-center"></h2>
   </a>
   </template>
 </div>

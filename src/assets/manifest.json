@@ -2,9 +2,9 @@
   "$schema": "https://json.schemastore.org/web-manifest-combined.json",
   "name": "Kobe",
   "short_name": "Kobe",
-  "start_url": ".",
+  "start_url": "/#projects/pro_i7XnAuWQ",
   "display": "standalone",
-  "background_color": "#f8fdef",
+  "background_color": "#fff248",
   "description": "Organise group expenses on the web.",
   "icons": [
     {

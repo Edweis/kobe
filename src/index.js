@@ -77,6 +77,10 @@ router.get('/manifest.json', async (ctx) => {
   ctx.set('content-type', 'application/json')
   ctx.body = await fs.readFile('./src/assets/manifest.json')
 });
+router.get('/assets/ah-card.jpg', async (ctx) => {
+  ctx.set('content-type', 'image/jpeg')
+  ctx.body = await fs.readFile('./src/assets/ah-card.jpg')
+});
 router.get('/assets/:img', async (ctx) => {
   const img = ctx.params.img
   if (/icon-\d+x\d+\.(png|ico)/.test(img)) {

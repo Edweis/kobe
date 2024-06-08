@@ -7,6 +7,10 @@
   <link rel="shortcut icon" type="image/svg+xml" href="/assets/icon-512x512.png"/>
   <link rel="manifest" href="/manifest.json" />
   <script>
+    window.onerror = function(message, url, lineNumber) {  
+      alert(JSON.stringify({message, url, lineNumber}))
+    };  
+
     if(false)
       navigator.serviceWorker.register("/serviceworker.js", { scope: "." }).then(console.log, console.error)
     if ("serviceWorker" in navigator) 
