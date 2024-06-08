@@ -1,5 +1,5 @@
 import Koa from 'koa';
-import Router from '@koa/router';
+import Router from '@koa/router'; 
 import { render } from './lib/render.js';
 import fs from 'fs/promises'
 import bodyParser from 'koa-bodyparser'
@@ -37,6 +37,7 @@ const insertProject = (p) => db.run(`
 
 // Endpoints
 router.get('/', async (ctx) => {
+  ctx.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=5');
   ctx.body = render('main')
 });
 
@@ -62,11 +63,12 @@ router.post('/data.json', async (ctx) => {
 
 //assets
 router.get('/assets/styles.css', async (ctx) => {
-  ctx.set('content-type', 'text/css')
+  ctx.set('content-type', 'text/css') 
   ctx.body = await fs.readFile('./src/assets/styles.css')
 });
 router.get('/assets/alpine.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
+  ctx.set('Cache-Control', 'public, max-age=31536000')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
 });
 // router.get('/serviceworker.js', async (ctx) => {

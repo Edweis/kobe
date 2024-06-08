@@ -50,3 +50,4 @@ export function shortDate(dateString) {
   const month = months[date.getMonth()];
   return `${day} ${month}`;
 }
+ 
