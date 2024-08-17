@@ -40,7 +40,7 @@ const CURR_MAX_DEC = {"IDR":0,"BIF":0,"CLP":0,"DJF":0,"GNF":0,"ISK":0,"JPY":0,"K
 export function toCurrency(curr, amount){
   const digits = CURR_MAX_DEC[curr]??2
   return Intl
-    .NumberFormat(undefined, { style: 'currency', currency: curr || 'EUR', minimumFractionDigits:digits, maximumFractionDigits:digits})
+    .NumberFormat(undefined, { style: 'currency', currency: curr || 'EUR', minimumFractionDigits: digits, maximumFractionDigits:digits})
     .format(amount)
 }
 export function shortDate(dateString) {

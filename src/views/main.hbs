@@ -54,7 +54,7 @@
     function toCurrency(curr, amount){
       const digits = CURR_MAX_DEC[curr]??2
       return Intl
-        .NumberFormat(undefined, { style: 'currency', currency: curr, minimumFractionDigits:digits, maximumFractionDigits:digits})
+        .NumberFormat(undefined, { style: 'currency', currency: curr ?? 'EUR', minimumFractionDigits:digits, maximumFractionDigits:digits})
         .format(amount)
     }
   </script>
