@@ -57,8 +57,13 @@ router.post('/projects', async ctx => {
   return ctx.redirect('/projects/' + id)
 })
 router.get('/projects/:id', async (ctx) => {
+  const q = ctx.query.q
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  let lines = await db.all('SELECT * FROM lines WHERE project_id=$1 AND deleted_at IS NULL ORDER BY created_at DESC', [ctx.params.id])
+  let lines = await db.all(`
+    SELECT * FROM lines 
+    WHERE project_id=$1 AND deleted_at IS NULL AND ($2 IS NULL OR name LIKE $2)
+    ORDER BY created_at DESC
+  `, [ctx.params.id, q ? `%${q}%` : null])
   project.participants = JSON.parse(project.participants)
   const me = project.participants[0]
   lines = lines.map(line => {
@@ -75,11 +80,16 @@ router.get('/projects/:id', async (ctx) => {
       myImpact
     }
   })
+  ctx.body = render('project', { project, lines, q })
+});
+router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
+  let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, ctx.params.lineId])
+  project.participants = JSON.parse(project.participants)
+  line.split = JSON.parse(line.split)
+  const me = project.participants[0]
 
-
-  // project.participants = JSON.parse(project.participants)
-  console.log({ me })
-  ctx.body = render('project', { project, lines })
+  ctx.body = render('project-line', { project, line })
 });
 
 router.get('/data.json', async (ctx) => {

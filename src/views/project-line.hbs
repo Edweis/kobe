@@ -1,0 +1,65 @@
+{{#> head title="Project"}}
+{{/head}}
+<body>
+  <section>  
+    <header>
+      <h1 x-text="line.name || 'New'"></h1>
+      <span x-text="project.name"></span>
+    </header>
+    <nav>
+      <a href=".." id="back-project">Back</a>
+    </nav>
+    <form class="grid" @submit.prevent="allLines.push(getFormData(event.target)); history.back()">
+      <input type="hidden" name="deleted_at" x-model="line.deletedAt" />
+      <input type="hidden" name="project_id" x-model="projectId" />
+      <input type="hidden" name="pending" :value="new Date().toISOString()" />
+      <input type="hidden" name="id" x-model="lineId" />
+      <label class="form-control">
+        <span class="label label-text">Title</span>
+        <input name="name" class="input input-bordered" :value="line.name" autofocus="" required="" />
+      </label>
+      <label class="form-control">
+        <span class="label label-text">Amount</span>
+        <div class="flex gap-2">
+          <input name="amount" :value="line.amount"  class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" oninput="computeSplit()" required=""  />
+          <select name="currency" class="select select-bordered" :value="line.currency || project.currency" @click="line.currency = event.target.value">
+            <template x-for="currency in currencies">
+            <option :value="currency" x-text="currency"></option>
+            </template>
+          </select>
+        </div>
+      </label>
+      <label class="form-control">
+        <span class="label label-text">Date</span>
+        <input type="datetime-local" name="created_at" :value="line.created_at || nowForInput()" @change="line.created_at = event.target.value" class="input input-bordered" />
+      </label>
+      <label class="form-control">
+        <span class="label label-text">Paid by</span>
+        <select name="paid" x-model="line.paid" class="select select-bordered">
+          <template x-for="part in project.participants">
+          <option :value="part" x-text="part"></option>
+          </template>
+        </select>
+      </label>
+      <ul class="grid gap-4 mt-4">
+        <template x-for="(part, index) in project.participants">
+        <li class="flex items-center gap-4" x-data="{ splitLine: undefined }" x-effect="splitLine = line.split.find(s => s.participant === part)" >
+          <input :id="'part'+ index" :data-included="part" :checked="splitLine ==null || splitLine.amount > 0" type="checkbox" onclick="computeSplit()" class="checkbox"/>
+          <label :for="'part'+ index" class="flex items-center gap-4 whitespace-nowrap" x-text="part"></label>
+          <input :name="'split['+index+'][participant]'" :value="part" type="hidden"/>
+          <input :name="'split['+index+'][amount]'" :value="splitLine?.amount || 0" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
+          <span x-text="line.currency"></span>
+        </li>
+        </template>
+      </ul>
+      <div class="my-8 flex justify-start gap-8 flex-row-reverse">
+        <button class="btn btn-primary">Save</button>
+        <button class="btn btn-warning" @click="
+          const shouldDelete = confirm('Are you sure you want to delete?')
+          if(!shouldDelete) event.preventDefault()
+          else line.deletedAt = new Date().toISOString();
+        ">Delete</button>
+      </div>
+    </form>
+  </section>
+</body>
