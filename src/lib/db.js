@@ -24,16 +24,24 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 CREATE TABLE IF NOT EXISTS lines (
   id VARCHAR(50),
+  updated_at DATE NOT NULL,
   created_at DATE NOT NULL,
   deleted_at DATE,
   name VARCHAR(255) NOT NULL COLLATE NOCASE,
-  amount INTEGER NOT NULL,
-  currency VARCHAR(3) NOT NULL,
+  amount REAL NOT NULL,
   paid VARCHAR(255) NOT NULL,
+  
   project_id VARCHAR(50) REFERENCES projects(id),
-  split JSONB,
-
   PRIMARY KEY (id, project_id)
+);
+
+CREATE TABLE IF NOT EXISTS split (
+  participant VARCHAR(255) NOT NULL COLLATE NOCASE,
+  amount REAL NOT NULL,
+
+  project_id VARCHAR(50) REFERENCES projects(id),
+  line_id VARCHAR(50) REFERENCES lines(id),
+  PRIMARY KEY (participant, line_id, project_id)
 );
 `,
 );
@@ -49,33 +57,8 @@ if(!IS_PROD){
     await database.exec(`
   -- Insert projects
   INSERT INTO projects (id, name, participants, currency)
-  VALUES ('pro_123', 'Suka makan', '["francois", "kaille"]', 'IDR')
+  VALUES ('pro_123', 'Gui !', '["francois", "kaille"]', 'EUR')
   ON CONFLICT (id) DO NOTHING;
-
-  -- Insert lines
-  INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_2', '2024-01-03T00:00', 'Grab', 133024, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 66512}, {"participant": "kaille", "amount": 66512}]')
-  ON CONFLICT (id, project_id) DO NOTHING;
-
-  INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_3', '2024-01-02T00:12', 'Beers', 429762, 'IDR', 'francois', 'pro_123', '[{"participant": "francois", "amount": 214881}, {"participant": "kaille", "amount": 214881}]')
-  ON CONFLICT (id, project_id) DO NOTHING;
-
-  INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_4', '2024-01-01T00:43', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 85365}, {"participant": "kaille", "amount": 85365}]')
-  ON CONFLICT (id, project_id) DO NOTHING;
-
-  INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_5', '2024-01-01T00:43', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 85365}, {"participant": "kaille", "amount": 85365}]')
-  ON CONFLICT (id, project_id) DO NOTHING;
-
-  INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_6', '2024-01-01T00:43', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 85365}, {"participant": "kaille", "amount": 85365}]')
-  ON CONFLICT (id, project_id) DO NOTHING;
-
-  INSERT INTO lines (id, created_at, name, amount, currency, paid, project_id, split)
-  VALUES ('lin_7', '2024-01-01T00:43', 'Weekend camille', 170730, 'IDR', 'kaille', 'pro_123', '[{"participant": "francois", "amount": 85365}, {"participant": "kaille", "amount": 85365}]')
-  ON CONFLICT (id, project_id) DO NOTHING;
   `)
   
 }

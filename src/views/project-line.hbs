@@ -3,14 +3,14 @@
 <body>
   <section>  
     <header>
-      <h1>{{line.name}}</h1>
-      <span x-text="project.name"></span>
+      <h1>{{default line.name 'New spending'}}</h1>
+      <span>{{project.name}}</span>
     </header>
     <nav>
       <a href="..">Back</a>
     </nav>
-    <form class="grid" action="/project/{{line.project_id}}/lines/{{line.id}}" method="post">
-      <input type="hidden" name="project_id" value="{{line.project_id}}"/>
+    <form class="grid" hx-post="/projects/{{project.id}}/lines" x-data="{ balanced: true }" hx-target="#error">
+      <input type="hidden" name="project_id" value="{{project.id}}"/>
       <input type="hidden" name="id" value="{{line.id}}"/>
       <label class="form-control">
         <span class="label label-text">Title</span>
@@ -19,7 +19,7 @@
       <label class="form-control">
         <span class="label label-text">Amount</span>
         <div class="flex gap-2">
-          <input name="amount" :value="line.amount"  class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" oninput="computeSplit()" required=""  />
+          <input name="amount"class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" required=""  />
           <select name="currency" class="select select-bordered" value="{{line.currency}}"> 
             <option>EUR</option>
             <option>SGD</option>
@@ -42,30 +42,31 @@
         </label>
         <label class="flex flex-col items-center">
           <span class="label label-text">Balanced?</span>
-          <input type="checkbox" class="toggle toggle-primary mt-3" checked="checked" />
+          <input type="checkbox" class="toggle toggle-primary mt-3" x-model="balanced" name="balanced" />
         </label>
       </div>
       <ul class="grid gap-4 mt-4">
-        {{#each line.split}}
+        {{#each split}}
         {{#if specific}}
         <li class="flex items-center gap-4">
           ???
         </li>
         {{else}}
         <li class="flex items-center gap-4">
-          <input id="{{this.participant}}" type="checkbox" class="checkbox"/>
+          <input id="{{this.participant}}" type="checkbox" class="checkbox" x-show="balanced"/>
           <label for="'part'+ index" class="flex items-center gap-4 whitespace-nowrap">{{this.participant}}</label>
-          <input name="split[{{@index}}][participant]'" value={{this.participant}} type="hidden"/>
-          <input name="split[{{@index}}][amount]'" disabled value={{this.amount}} class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
-          <span>{{../line.currency}}</span>
+          <input name="split[{{@index}}][participant]" value={{this.participant}} type="hidden"/>
+          <input name="split[{{@index}}][amount]" :disabled="balanced" value="{{this.amount}}" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
+          <span>{{../project.currency}}</span>
         </li>
         {{/if}}
        {{/each}}
       </ul>
       <div class="my-8 flex justify-start gap-8 flex-row-reverse">
         <button class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-warning" hx-confirm="Are you ssssuuuure?" hx-delete="/projects/{{line.project_id}}/lines/{{line.id}}">Delete</button>
+        <button type="button" class="btn btn-warning" hx-confirm="Are you ssssuuuure?" hx-delete="/projects/{{project.id}}/lines/{{line.id}}">Delete</button>
       </div>
+      <span id="error" class="text-red-400 text-right"></span>
     </form>
   </section>
 </body>

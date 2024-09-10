@@ -19,8 +19,8 @@ app
       await next()
     } catch (error) {
       console.error(error)
-      ctx.status = 500
-      ctx.body = { ...error, message: error.message }
+      // ctx.status = 500
+      ctx.body = error.message
     }
   })
 
@@ -58,23 +58,22 @@ router.post('/projects', async ctx => {
 })
 router.get('/projects/:id', async (ctx) => {
   if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
-  const q = ctx.query.q
+  const q = ctx.query.q || null
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  let lines = await db.all(`
-    SELECT * FROM lines 
-    WHERE project_id=$1 AND deleted_at IS NULL AND ($2 IS NULL OR name LIKE $2)
-    ORDER BY created_at DESC
-  `, [ctx.params.id, q ? `%${q}%` : null])
-  project.participants = JSON.parse(project.participants)
   const me = project.participants[0]
-  lines = lines.map(line => {
-    const split = JSON.parse(line.split)
-    const mySplit = split.find(s => s.participant === me)?.amount || 0
-    const myImpact = (line.paid === me) ? line.amount - mySplit : -mySplit
+  let lines = await db.all(`
+    SELECT l.*, s.amount as myAmount FROM lines l
+    LEFT JOIN split s ON s.project_id=$1 AND s.line_id=l.id AND s.participant=$3
+    WHERE l.project_id=$1 AND deleted_at IS NULL AND ($2 IS NULL OR name LIKE $2)
+    ORDER BY created_at DESC
+  `, [ctx.params.id, q && `%${q}%`, ])
+  console.log(lines)
+  project.participants = JSON.parse(project.participants)
 
+  lines = lines.map(line => {
+    const myImpact = (line.paid === me) ? line.amount - line.myAmount : -line.myAmount
     return {
       ...line,
-      split,
       created_at: shortDate(line.created_at),
       paidBy: (line.paid === me ? 'You' : line.paid) + ' paid ' + toCurrency(line.currency, line.amount),
       myImpactStr: toCurrency(line.currency, myImpact),
@@ -86,23 +85,72 @@ router.get('/projects/:id', async (ctx) => {
 router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, ctx.params.lineId])
+  let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [ctx.params.projectId, ctx.params.lineId])
+  
   project.participants = JSON.parse(project.participants)
-  line.split = JSON.parse(line.split)
+  ctx.body = render('project-line', { project, line, split })
+});
+router.get('/projects/:projectId/add-line', async (ctx) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
+  project.participants = JSON.parse(project.participants)
 
-  ctx.body = render('project-line', { project, line })
+  const now = new Date().toISOString().split('.')[0]
+  ctx.body = render('project-line', {
+    project,
+    line: { created_at: now, currenct: project.currency },
+    split: project.participants.map(p => ({ participant: p, amount: 0 }))
+  })
 });
 router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {
   const { projectId, lineId } = ctx.params
   await db.get('UPDATE lines  SET deleted_at = datetime(\'now\') WHERE project_id=$1 AND id=$2', [projectId, lineId])
   ctx.status = 204
-  return ctx.set('HX-Redirect', '/projects/' + projectId + '/')
+  return ctx.set('HX-Redirect', `/projects/${projectId}/`)
 })
+router.post('/projects/:projectId/lines', async (ctx) => {
+  const line = ctx.request.body
+  const { projectId } = ctx.params
+  const now = new Date().toISOString()
+  line.id = line.id || randKey('lin_')
+  line.amount = Number(line.amount)
+  line.split = (line.split || []).map(s => ({ ...s, amount: Number(s.amount ?? 0) }))
+
+  console.log(line)
+  const totalSplit = line.split.reduce((acc, val) => acc + val.amount, 0)
+  ctx.assert(totalSplit === Number(line.amount), 400, `Balance is off: ${totalSplit} vs ${line.amount}`)
+
+  await db.run(`
+    INSERT INTO lines (id, project_id, name, amount, paid, updated_at, created_at)
+    VALUES            ($1,         $2,   $3,     $4,   $5,         $6,         $6)
+    ON CONFLICT(id, project_id) DO UPDATE SET 
+      name=$3, amount=$4, paid=$5, updated_at=$6`,
+    [line.id, projectId, line.name, line.amount, line.paid, now])
+  const promises = line.split.map(async ({ participant, amount }) => db.run(`
+      INSERT INTO split (participant, amount, project_id, line_id)
+      VALUES            (         $1,     $2,          $3,     $4)
+      ON CONFLICT(participant, line_id, project_id) DO UPDATE SET 
+        amount=$2`,
+    [participant, amount, projectId, line.id])
+  )
+  await Promise.all(promises)
+
+  ctx.status = 201
+  return ctx.set('HX-Redirect', `/projects/${projectId}/`)
+})
+
+
+
+router.get('/projects/:id/balance', async (ctx) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+
+  ctx.body = render('balance', { project })
+});
 
 router.get('/data.json', async (ctx) => {
   let projects = await db.all('SELECT * FROM projects')
   projects = projects.map(p => ({ ...p, participants: JSON.parse(p.participants) }))
   let lines = await db.all('SELECT * FROM lines WHERE deleted_at IS NULL ORDER BY created_at DESC')
-  lines = lines.map(l => ({ ...l, split: JSON.parse(l.split) }))
+
 
   ctx.body = { projects, lines }
 });

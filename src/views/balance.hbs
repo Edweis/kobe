@@ -1,0 +1,41 @@
+{{#> head title="Balance"}}
+<script>
+  function computeStyle(amount){
+    let max = 0
+    document
+      .querySelectorAll('[data-amount]')
+      .forEach(el => {
+        const candidate = Number(el.attributes['data-amount'].value)
+        max = Math.max(Math.abs(candidate), max)
+      })
+    const ratio = 100 * amount / max
+    const width = Math.abs(ratio / 2)
+    const left = amount > 0 ? 50 : 50-width
+    return `width: ${width}%; left: ${left}%`
+  }
+</script>
+{{/head}}
+
+<body>
+  <section>  
+    <header>
+      <h1>Balance</h1>
+      <span>{{project.name}}</span>
+    </header>
+    <nav>
+      <a href=".." >Back</a>
+      <a href="reim">Reimburse</a>
+      <a href="settings">Settings</a>
+    </nav>
+    <div class="grid gap-2 mt-8">
+      {{#each expenses}}
+      <article :class="expense[1]<0 && 'flex-row-reverse'" class="relative flex gap-8 py-2 items-center" x-data="{}" :data-amount="expense[1]">
+        <div x-text="expense[0]" :class="expense[1]>=0 && 'text-right'" class="w-full"></div>
+        <div x-text="toCurrency(project.currency, expense[1])" :class="expense[1]<0 && 'text-right'" class="w-full"></div>
+        <div class="absolute bg-error/50 data-[positive]:bg-primary/30 h-full" :style="computeStyle(expense[1])" :data-positive="expense[1] > 0"></div>
+      </article>
+      <hr class=""></hr>
+      {{/expenses}}
+    </div>
+  </section>
+</body>

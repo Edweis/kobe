@@ -25,7 +25,7 @@ export function computeBalance(expenses) {
   return [tx, ...computeBalance(expenses)]
 }
 
-export function computeExpenses(lines){
+export function computeExpenses(lines) {
   const expenses = new Map()
   lines
     .flatMap(l => JSON.parse(l.split).map(ll => ({ ...ll, paid: l.paid })))
@@ -36,18 +36,18 @@ export function computeExpenses(lines){
   return expenses
 }
 
-const CURR_MAX_DEC = {"IDR":0,"BIF":0,"CLP":0,"DJF":0,"GNF":0,"ISK":0,"JPY":0,"KMF":0,"KRW":0,"PYG":0,"RWF":0,"UGX":0,"UYI":0,"VND":0,"VUV":0,"XAF":0,"XOF":0,"XPF":0,"BHD":3,"IQD":3,"JOD":3,"KWD":3,"LYD":3,"OMR":3,"TND":3,"CLF":4,"UYW":4}
-export function toCurrency(curr, amount){
-  const digits = CURR_MAX_DEC[curr]??2
+const CURR_MAX_DEC = { "IDR": 0, "BIF": 0, "CLP": 0, "DJF": 0, "GNF": 0, "ISK": 0, "JPY": 0, "KMF": 0, "KRW": 0, "PYG": 0, "RWF": 0, "UGX": 0, "UYI": 0, "VND": 0, "VUV": 0, "XAF": 0, "XOF": 0, "XPF": 0, "BHD": 3, "IQD": 3, "JOD": 3, "KWD": 3, "LYD": 3, "OMR": 3, "TND": 3, "CLF": 4, "UYW": 4 }
+export function toCurrency(curr, amount) {
+  const digits = CURR_MAX_DEC[curr] ?? 2
   return Intl
-    .NumberFormat(undefined, { style: 'currency', currency: curr || 'EUR', minimumFractionDigits: digits, maximumFractionDigits:digits})
+    .NumberFormat(undefined, { style: 'currency', currency: curr || 'EUR', minimumFractionDigits: digits, maximumFractionDigits: digits })
     .format(amount)
 }
 export function shortDate(dateString) {
-  const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const date = new Date(dateString);
   const day = date.getDate();
   const month = months[date.getMonth()];
   return `${day} ${month}`;
 }
- 
+
