@@ -3,23 +3,25 @@ import Router from '@koa/router';
 import { render } from './lib/render.js';
 import fs from 'fs/promises'
 import bodyParser from 'koa-bodyparser'
+import logger from 'koa-logger'
 import db from './lib/db.js';
 const app = new Koa();
 const router = new Router();
 
 // Middlewares
 app
+  .use(logger())
   .use(bodyParser())
-  .use(async (ctx, next) => {
-    console.log(ctx.method, ctx.path)
-    try {
-      await next()
-    } catch (error) {
-      console.error(error)
-      ctx.status = 500
-      ctx.body = { ...error, message: error.message }
-    }
-  })
+  // .use(async (ctx, next) => {
+  //   console.log(ctx.method, ctx.path)
+  //   try {
+  //     await next()
+  //   } catch (error) {
+  //     console.error(error)
+  //     ctx.status = 500
+  //     ctx.body = { ...error, message: error.message }
+  //   }
+  // })
 
 
 // Helpers
@@ -71,10 +73,8 @@ router.get('/assets/alpine.js', async (ctx) => {
   ctx.set('Cache-Control', 'public, max-age=31536000')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
 });
-// router.get('/serviceworker.js', async (ctx) => {
-//   ctx.set('content-type', 'application/javascript')
-//   ctx.body = await fs.readFile('./src/assets/serviceworker.js')
-// });
+
+
 router.get('/manifest.json', async (ctx) => {
   ctx.set('content-type', 'application/json')
   ctx.body = await fs.readFile('./src/assets/manifest.json')
