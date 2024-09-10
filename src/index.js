@@ -1,10 +1,11 @@
 import Koa from 'koa';
-import Router from '@koa/router'; 
+import Router from '@koa/router';
 import { render } from './lib/render.js';
 import fs from 'fs/promises'
 import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import db from './lib/db.js';
+import { randKey, shortDate, toCurrency } from './lib/helpers.js';
 const app = new Koa();
 const router = new Router();
 
@@ -12,22 +13,22 @@ const router = new Router();
 app
   .use(logger())
   .use(bodyParser())
-  // .use(async (ctx, next) => {
-  //   console.log(ctx.method, ctx.path)
-  //   try {
-  //     await next()
-  //   } catch (error) {
-  //     console.error(error)
-  //     ctx.status = 500
-  //     ctx.body = { ...error, message: error.message }
-  //   }
-  // })
+  .use(async (ctx, next) => {
+    console.log(ctx.method, ctx.path)
+    try {
+      await next()
+    } catch (error) {
+      console.error(error)
+      ctx.status = 500
+      ctx.body = { ...error, message: error.message }
+    }
+  })
 
 
 // Helpers
 const insertLine = (l) => db.run(`
   INSERT OR REPLACE INTO lines (created_at, name, amount, currency, paid, split, project_id, id, deleted_at)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, 
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
   [l.created_at, l.name, l.amount, l.currency, l.paid, JSON.stringify(l.split), l.project_id, l.id, l.deleted_at || null])
 
 const insertProject = (p) => db.run(`
@@ -39,8 +40,46 @@ const insertProject = (p) => db.run(`
 
 // Endpoints
 router.get('/', async (ctx) => {
-  ctx.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=5');
-  ctx.body = render('main')
+  // ctx.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=5');
+  let projects = await db.all('SELECT id, name FROM projects')
+  ctx.body = render('list-projects', { projects })
+});
+
+router.post('/projects', async ctx => {
+  const name = ctx.header['hx-prompt'];
+  if (!name) return ctx.throw(204)
+  const id = randKey('pro_')
+  await db.run(`
+    INSERT OR REPLACE INTO projects (id, name, participants, currency)
+    VALUES ($1, $2, $3, $4)`,
+    [id, name, [], 'EUR']
+  )
+  return ctx.redirect('/projects/' + id)
+})
+router.get('/projects/:id', async (ctx) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+  let lines = await db.all('SELECT * FROM lines WHERE project_id=$1 AND deleted_at IS NULL ORDER BY created_at DESC', [ctx.params.id])
+  project.participants = JSON.parse(project.participants)
+  const me = project.participants[0]
+  lines = lines.map(line => {
+    const split = JSON.parse(line.split)
+    const mySplit = split.find(s => s.participant === me)?.amount || 0
+    const myImpact = (line.paid === me) ? line.amount - mySplit : -mySplit
+
+    return {
+      ...line,
+      split,
+      created_at: shortDate(line.created_at),
+      paidBy: (line.paid === me ? 'You' : line.paid) + ' paid ' + toCurrency(line.currency, line.amount),
+      myImpactStr: toCurrency(line.currency, myImpact),
+      myImpact
+    }
+  })
+
+
+  // project.participants = JSON.parse(project.participants)
+  console.log({ me })
+  ctx.body = render('project', { project, lines })
 });
 
 router.get('/data.json', async (ctx) => {
@@ -65,13 +104,18 @@ router.post('/data.json', async (ctx) => {
 
 //assets
 router.get('/assets/styles.css', async (ctx) => {
-  ctx.set('content-type', 'text/css') 
+  ctx.set('content-type', 'text/css')
   ctx.body = await fs.readFile('./src/assets/styles.css')
 });
 router.get('/assets/alpine.js', async (ctx) => {
   ctx.set('content-type', 'application/javascript')
   ctx.set('Cache-Control', 'public, max-age=31536000')
   ctx.body = await fs.readFile('./src/assets/alpine.js')
+});
+router.get('/assets/htmx.js', async (ctx) => {
+  ctx.set('content-type', 'application/javascript')
+  ctx.set('Cache-Control', 'public, max-age=31536000')
+  ctx.body = await fs.readFile('./src/assets/htmx.js')
 });
 
 

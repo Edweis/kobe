@@ -9,6 +9,10 @@ const root = './src'
 Handlebars.registerHelper('default', function (arg1, arg2, options) {
   return arg1 || arg2
 })
+Handlebars.registerHelper('gt', function (arg1, arg2) {
+  console.log({arg2, arg1})
+  return arg1> arg2
+});
 
 // Partials
 const partialPath = root + '/views/partials/'

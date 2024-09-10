@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" />
+
+{{#> head title="List projects"}}
+   <script>
+    function addProject(event){
+      const name = prompt('New project name');
+      if(name==null) return
+      document.querySelector('form input[name=name]').value = name
+      document.querySelector('form input[name=name]').value = name
+    }
+  </script>
+{{/head}}
+
+<body>
+  <section>
+    <h1>Kobe</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {{#each projects}}
+        <a
+          href="/projects/{{this.id}}"
+          class="p-8 rounded-md shadow-xl bg-primary hover:bg-primary/70 transition-colors"
+        >
+          <h2
+            class="text-xl font-semibold text-center text-primary-content"
+          >{{this.name}}</h2>
+        </a>
+      {{/each}}
+    </div>
+    <button
+      class="fixed right-4 bottom-4 btn btn-lg btn-primary btn-circle"
+      hx-prompt="New project name"
+      hx-post="projects"
+      hx-swap="none"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" > <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /> </svg>
+    </button>
+  </section>
+</body>

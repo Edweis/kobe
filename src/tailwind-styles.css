@@ -17,6 +17,9 @@ h3 {
   @apply text-xl
 }
 
+body {
+  @apply flex flex-col gap-4 pt-4 h-screen
+}
 body > section {
   @apply flex flex-col gap-4
 }
