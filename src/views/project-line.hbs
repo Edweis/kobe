@@ -9,7 +9,7 @@
     <nav>
       <a href="..">Back</a>
     </nav>
-    <form class="grid">
+    <form class="grid" action="/project/{{line.project_id}}/lines/{{line.id}}" method="post">
       <input type="hidden" name="project_id" value="{{line.project_id}}"/>
       <input type="hidden" name="id" value="{{line.id}}"/>
       <label class="form-control">
@@ -64,11 +64,7 @@
       </ul>
       <div class="my-8 flex justify-start gap-8 flex-row-reverse">
         <button class="btn btn-primary">Save</button>
-        <button class="btn btn-warning" @click="
-          const shouldDelete = confirm('Are you sure you want to delete?')
-          if(!shouldDelete) event.preventDefault()
-          else line.deletedAt = new Date().toISOString();
-        ">Delete</button>
+        <button type="button" class="btn btn-warning" hx-confirm="Are you ssssuuuure?" hx-delete="/projects/{{line.project_id}}/lines/{{line.id}}">Delete</button>
       </div>
     </form>
   </section>

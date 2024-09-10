@@ -57,6 +57,7 @@ router.post('/projects', async ctx => {
   return ctx.redirect('/projects/' + id)
 })
 router.get('/projects/:id', async (ctx) => {
+  if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
   const q = ctx.query.q
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
   let lines = await db.all(`
@@ -87,10 +88,15 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, ctx.params.lineId])
   project.participants = JSON.parse(project.participants)
   line.split = JSON.parse(line.split)
-  
 
   ctx.body = render('project-line', { project, line })
 });
+router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {
+  const { projectId, lineId } = ctx.params
+  await db.get('UPDATE lines  SET deleted_at = datetime(\'now\') WHERE project_id=$1 AND id=$2', [projectId, lineId])
+  ctx.status = 204
+  return ctx.set('HX-Redirect', '/projects/' + projectId + '/')
+})
 
 router.get('/data.json', async (ctx) => {
   let projects = await db.all('SELECT * FROM projects')
