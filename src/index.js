@@ -87,7 +87,7 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, ctx.params.lineId])
   project.participants = JSON.parse(project.participants)
   line.split = JSON.parse(line.split)
-  const me = project.participants[0]
+  
 
   ctx.body = render('project-line', { project, line })
 });

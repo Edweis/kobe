@@ -3,54 +3,64 @@
 <body>
   <section>  
     <header>
-      <h1 x-text="line.name || 'New'"></h1>
+      <h1>{{line.name}}</h1>
       <span x-text="project.name"></span>
     </header>
     <nav>
-      <a href=".." id="back-project">Back</a>
+      <a href="..">Back</a>
     </nav>
-    <form class="grid" @submit.prevent="allLines.push(getFormData(event.target)); history.back()">
-      <input type="hidden" name="deleted_at" x-model="line.deletedAt" />
-      <input type="hidden" name="project_id" x-model="projectId" />
-      <input type="hidden" name="pending" :value="new Date().toISOString()" />
-      <input type="hidden" name="id" x-model="lineId" />
+    <form class="grid">
+      <input type="hidden" name="project_id" value="{{line.project_id}}"/>
+      <input type="hidden" name="id" value="{{line.id}}"/>
       <label class="form-control">
         <span class="label label-text">Title</span>
-        <input name="name" class="input input-bordered" :value="line.name" autofocus="" required="" />
+        <input name="name" class="input input-bordered" autofocus="" required="" value="{{line.name}}" />
       </label>
       <label class="form-control">
         <span class="label label-text">Amount</span>
         <div class="flex gap-2">
           <input name="amount" :value="line.amount"  class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" oninput="computeSplit()" required=""  />
-          <select name="currency" class="select select-bordered" :value="line.currency || project.currency" @click="line.currency = event.target.value">
-            <template x-for="currency in currencies">
-            <option :value="currency" x-text="currency"></option>
-            </template>
+          <select name="currency" class="select select-bordered" value="{{line.currency}}"> 
+            <option>EUR</option>
+            <option>SGD</option>
+            <option>USD</option>
           </select>
         </div>
       </label>
       <label class="form-control">
         <span class="label label-text">Date</span>
-        <input type="datetime-local" name="created_at" :value="line.created_at || nowForInput()" @change="line.created_at = event.target.value" class="input input-bordered" />
+        <input type="datetime-local" name="created_at" class="input input-bordered" value="{{line.created_at}}" />
       </label>
-      <label class="form-control">
-        <span class="label label-text">Paid by</span>
-        <select name="paid" x-model="line.paid" class="select select-bordered">
-          <template x-for="part in project.participants">
-          <option :value="part" x-text="part"></option>
-          </template>
-        </select>
-      </label>
+      <div class="flex gap-2">
+        <label class="form-control grow">
+          <span class="label label-text">Paid by</span>
+          <select name="paid" class="select select-bordered" value="{{line.paid}}">
+            {{#each project.participants}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label class="flex flex-col items-center">
+          <span class="label label-text">Balanced?</span>
+          <input type="checkbox" class="toggle toggle-primary mt-3" checked="checked" />
+        </label>
+      </div>
       <ul class="grid gap-4 mt-4">
-        <template x-for="(part, index) in project.participants">
-        <li class="flex items-center gap-4" x-data="{ splitLine: undefined }" x-effect="splitLine = line.split.find(s => s.participant === part)" >
-          <input :id="'part'+ index" :data-included="part" :checked="splitLine ==null || splitLine.amount > 0" type="checkbox" onclick="computeSplit()" class="checkbox"/>
-          <label :for="'part'+ index" class="flex items-center gap-4 whitespace-nowrap" x-text="part"></label>
-          <input :name="'split['+index+'][participant]'" :value="part" type="hidden"/>
-          <input :name="'split['+index+'][amount]'" :value="splitLine?.amount || 0" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
-          <span x-text="line.currency"></span>
+        {{#each line.split}}
+        {{#if specific}}
+        <li class="flex items-center gap-4">
+          ???
         </li>
-        </template>
+        {{else}}
+        <li class="flex items-center gap-4">
+          <input id="{{this.participant}}" type="checkbox" class="checkbox"/>
+          <label for="'part'+ index" class="flex items-center gap-4 whitespace-nowrap">{{this.participant}}</label>
+          <input name="split[{{@index}}][participant]'" value={{this.participant}} type="hidden"/>
+          <input name="split[{{@index}}][amount]'" disabled value={{this.amount}} class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
+          <span>{{../line.currency}}</span>
+        </li>
+        {{/if}}
+       {{/each}}
       </ul>
       <div class="my-8 flex justify-start gap-8 flex-row-reverse">
         <button class="btn btn-primary">Save</button>
