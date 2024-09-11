@@ -83,7 +83,9 @@
       </ul>
       <div class="my-8 flex justify-start gap-8 flex-row-reverse">
         <button class="btn btn-primary">Save</button>
+        {{#if line.id}}
         <button type="button" class="btn btn-warning" hx-confirm="Are you ssssuuuure?" hx-delete="/projects/{{project.id}}/lines/{{line.id}}">Delete</button>
+        {{/if}}
       </div>
       <span id="error" class="text-red-400 text-right"></span>
     </form>

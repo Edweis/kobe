@@ -13,15 +13,15 @@ const router = new Router();
 app
   .use(logger())
   .use(bodyParser())
-  // .use(async (ctx, next) => {
-  //   console.log(ctx.method, ctx.path)
-  //   try {
-  //     await next()
-  //   } catch (error) {
-  //     console.error(error, Object.keys(error))
-  //     ctx.body = error.message
-  //   }
-  // })
+// .use(async (ctx, next) => {
+//   console.log(ctx.method, ctx.path)
+//   try {
+//     await next()
+//   } catch (error) {
+//     console.error(error, Object.keys(error))
+//     ctx.body = error.message
+//   }
+// })
 
 
 
@@ -47,14 +47,13 @@ router.get('/projects/:id', async (ctx) => {
   if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
   const q = ctx.query.q || null
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  const me = project.participants[0]
+  const me = JSON.parse(project.participants)[0]
   let lines = await db.all(`
     SELECT l.*, s.amount as myAmount FROM lines l
-    LEFT JOIN split s ON s.project_id=$1 AND s.line_id=l.id AND s.participant=$3
-    WHERE l.project_id=$1 AND deleted_at IS NULL AND (l.name LIKE $2 OR $2 IS NULL)
+    LEFT JOIN split s ON s.project_id=$1 AND s.line_id=l.id AND s.participant=$2
+    WHERE l.project_id=$1 AND deleted_at IS NULL AND (l.name LIKE $3 OR $3 is NULL)
     ORDER BY created_at DESC
-  `, [ctx.params.id, q && `%${q}%`]);
-  console.log(lines)
+  `, [ctx.params.id, me, q && `%${q}%`]);
   project.participants = JSON.parse(project.participants)
 
   lines = lines.map(line => {
@@ -73,7 +72,7 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, ctx.params.lineId])
   let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [ctx.params.projectId, ctx.params.lineId])
-  
+
   project.participants = JSON.parse(project.participants)
   ctx.body = render('project-line', { project, line, split })
 });
