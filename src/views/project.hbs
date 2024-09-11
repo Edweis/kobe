@@ -40,7 +40,9 @@
       </a>
       {{/each}}
     </div>
-    <span x-show="lines.length ===0" class="text-center">You don&apos;t have any spending yet.</span>
+    {{#if (empty lines)}}
+    <span class="text-center">You don&apos;t have any spending yet.</span>
+    {{/if}}
 
   </section>
 </body>

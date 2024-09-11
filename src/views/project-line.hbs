@@ -40,7 +40,7 @@
       <label class="form-control">
         <span class="label label-text">Amount</span>
         <div class="flex gap-2">
-          <input name="amount"class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" required="" step="2" @input="split = computeSplit()" autocomplete="off"  />
+          <input value="{{line.amount}}" name="amount"class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" required="" step="2" @input="split = computeSplit()" autocomplete="off"  />
           <select name="currency" class="select select-bordered" value="{{line.currency}}"> 
             <option>EUR</option>
             <option>SGD</option>
@@ -50,7 +50,7 @@
       </label>
       <label class="form-control">
         <span class="label label-text">Date</span>
-        <input type="datetime-local" name="created_at" class="input input-bordered" value="{{line.created_at}}" />
+        <input type="datetime-local" name="created_at" class="input input-bordered" value="{{trim-time line.created_at}}" />
       </label>
       <div class="flex gap-2">
         <label class="form-control grow">
@@ -71,7 +71,7 @@
       <ul class="grid mt-4 border rounded-xl px-4 input-bordered">
         <template x-for="(part, index) in split">
         <li class="flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered">
-          <input :id="part.participant" x-init="$el.checked = part>0 || !{{default line.amount 0}}" type="checkbox" class="checkbox checkbox-primary" @click="split = computeSplit()" :data-included="part.participant"/>
+          <input :id="part.participant" x-init="$el.checked = part.amount>0 || !{{default line.amount 0}}" type="checkbox" class="checkbox checkbox-primary" @click="split = computeSplit()" :data-included="part.participant"/>
           <label :for="part.participant" x-text="part.participant" class="flex items-center gap-4 whitespace-nowrap cursor-pointer"></label>
           <input :name="'split['+index+'][participant]'" x-model="part.participant" type="hidden"/>
           <span x-show="method === 'equally'" x-text="part.amount" class="ml-auto"></span>

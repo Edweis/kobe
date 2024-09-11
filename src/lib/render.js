@@ -15,6 +15,13 @@ Handlebars.registerHelper('gt', function (arg1, arg2) {
 Handlebars.registerHelper('stringify', function (arg1) {
   return JSON.stringify(arg1)
 });
+Handlebars.registerHelper('empty', function (arg1) {
+  return arg1.length === 0 
+});
+Handlebars.registerHelper('trim-time', function (arg1) {
+  console.log(arg1)
+  return arg1 && arg1.split('.')[0]
+});
 
 // Partials
 const partialPath = root + '/views/partials/'

@@ -133,25 +133,6 @@ router.get('/projects/:id/balance', async (ctx) => {
   ctx.body = render('balance', { project })
 });
 
-router.get('/data.json', async (ctx) => {
-  let projects = await db.all('SELECT * FROM projects')
-  projects = projects.map(p => ({ ...p, participants: JSON.parse(p.participants) }))
-  let lines = await db.all('SELECT * FROM lines WHERE deleted_at IS NULL ORDER BY created_at DESC')
-
-
-  ctx.body = { projects, lines }
-});
-
-router.post('/data.json', async (ctx) => {
-  const pending = ctx.request.body;
-  const promises = [
-    ...pending.lines.map(insertLine),
-    ...pending.projects.map(insertProject),
-  ]
-  await Promise.all(promises)
-  ctx.redirect('/data.json')
-});
-
 
 //assets
 router.get('/assets/styles.css', async (ctx) => {
