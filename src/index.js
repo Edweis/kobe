@@ -51,9 +51,9 @@ router.get('/projects/:id', async (ctx) => {
   let lines = await db.all(`
     SELECT l.*, s.amount as myAmount FROM lines l
     LEFT JOIN split s ON s.project_id=$1 AND s.line_id=l.id AND s.participant=$3
-    WHERE l.project_id=$1 AND deleted_at IS NULL AND ($2 IS NULL OR name LIKE $2)
+    WHERE l.project_id=$1 AND deleted_at IS NULL AND (l.name LIKE $2 OR $2 IS NULL)
     ORDER BY created_at DESC
-  `, [ctx.params.id, q && `%${q}%`, ])
+  `, [ctx.params.id, q && `%${q}%`]);
   console.log(lines)
   project.participants = JSON.parse(project.participants)
 
@@ -77,7 +77,7 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   project.participants = JSON.parse(project.participants)
   ctx.body = render('project-line', { project, line, split })
 });
-router.get('/projects/:projectId/add-line', async (ctx) => {
+router.get('/projects/:projectId/add-line/', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
   project.participants = JSON.parse(project.participants)
 
