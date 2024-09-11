@@ -1,4 +1,25 @@
 {{#> head title="Project"}}
+<script>
+  const round = (value, digits) =>Number(value.toFixed(digits))
+  function computeSplit(){
+   const DECIMALS = 2
+   const checked = document.querySelectorAll('input[data-included]:checked')
+   const total = Number(document.querySelector('input[name=amount]').value) ?? 0 
+   const indivAmount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)
+   let remaining = round(total - indivAmount * checked.length, DECIMALS) // remaining cents lost in rounding
+   
+   const nextSplit = []
+   document.querySelectorAll('input[data-included]').forEach(el => {
+    const participant = el.attributes['data-included'].value
+    let amount
+    if(!el.checked) amount = 0
+    else if(remaining===0)amount = round(indivAmount + remaining, DECIMALS) // first person gets the extra cents
+    else amount = indivAmount
+    nextSplit.push({participant, amount})
+   })
+   return nextSplit
+  }
+</script>
 {{/head}}
 <body>
   <section>  
@@ -9,7 +30,7 @@
     <nav>
       <a href="..">Back</a>
     </nav>
-    <form class="grid" hx-post="/projects/{{project.id}}/lines" x-data="{ balanced: true }" hx-target="#error">
+    <form class="grid" hx-post="/projects/{{project.id}}/lines" hx-target="#error" x-data="{ method: 'equally', split: {{stringify split}} }">
       <input type="hidden" name="project_id" value="{{project.id}}"/>
       <input type="hidden" name="id" value="{{line.id}}"/>
       <label class="form-control">
@@ -19,7 +40,7 @@
       <label class="form-control">
         <span class="label label-text">Amount</span>
         <div class="flex gap-2">
-          <input name="amount"class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" required=""  />
+          <input name="amount"class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" required="" step="2" @input="split = computeSplit()" autocomplete="off"  />
           <select name="currency" class="select select-bordered" value="{{line.currency}}"> 
             <option>EUR</option>
             <option>SGD</option>
@@ -34,33 +55,30 @@
       <div class="flex gap-2">
         <label class="form-control grow">
           <span class="label label-text">Paid by</span>
-          <select name="paid" class="select select-bordered" value="{{line.paid}}">
-            {{#each project.participants}}
-            <option value="{{this}}">{{this}}</option>
-            {{/each}}
-          </select>
-        </label>
-        <label class="flex flex-col items-center">
-          <span class="label label-text">Balanced?</span>
-          <input type="checkbox" class="toggle toggle-primary mt-3" x-model="balanced" name="balanced" />
+          <div class="flex gap-2">
+            <select name="paid" class="select select-bordered grow" value="{{line.paid}}">
+              {{#each project.participants}}
+              <option value="{{this}}">{{this}}</option>
+              {{/each}}
+            </select>
+            <select class="select select-bordered" x-model="method">
+              <option value="equally">Equally</option>
+              <option value="amount">As amount</option>
+            </select>
+          </div>
         </label>
       </div>
-      <ul class="grid gap-4 mt-4">
-        {{#each split}}
-        {{#if specific}}
-        <li class="flex items-center gap-4">
-          ???
+      <ul class="grid mt-4 border rounded-xl px-4 input-bordered">
+        <template x-for="(part, index) in split">
+        <li class="flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered">
+          <input :id="part.participant" x-init="$el.checked = part>0 || !{{default line.amount 0}}" type="checkbox" class="checkbox checkbox-primary" @click="split = computeSplit()" :data-included="part.participant"/>
+          <label :for="part.participant" x-text="part.participant" class="flex items-center gap-4 whitespace-nowrap cursor-pointer"></label>
+          <input :name="'split['+index+'][participant]'" x-model="part.participant" type="hidden"/>
+          <span x-show="method === 'equally'" x-text="part.amount" class="ml-auto"></span>
+          <input x-show="method === 'amount'" :name="'split['+index+'][amount]'" x-model="part.amount" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
+          <span>{{project.currency}}</span>
         </li>
-        {{else}}
-        <li class="flex items-center gap-4">
-          <input id="{{this.participant}}" type="checkbox" class="checkbox" x-show="balanced"/>
-          <label for="'part'+ index" class="flex items-center gap-4 whitespace-nowrap">{{this.participant}}</label>
-          <input name="split[{{@index}}][participant]" value={{this.participant}} type="hidden"/>
-          <input name="split[{{@index}}][amount]" :disabled="balanced" value="{{this.amount}}" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
-          <span>{{../project.currency}}</span>
-        </li>
-        {{/if}}
-       {{/each}}
+        </template>
       </ul>
       <div class="my-8 flex justify-start gap-8 flex-row-reverse">
         <button class="btn btn-primary">Save</button>

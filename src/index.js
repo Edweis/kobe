@@ -13,29 +13,16 @@ const router = new Router();
 app
   .use(logger())
   .use(bodyParser())
-  .use(async (ctx, next) => {
-    console.log(ctx.method, ctx.path)
-    try {
-      await next()
-    } catch (error) {
-      console.error(error)
-      // ctx.status = 500
-      ctx.body = error.message
-    }
-  })
+  // .use(async (ctx, next) => {
+  //   console.log(ctx.method, ctx.path)
+  //   try {
+  //     await next()
+  //   } catch (error) {
+  //     console.error(error, Object.keys(error))
+  //     ctx.body = error.message
+  //   }
+  // })
 
-
-// Helpers
-const insertLine = (l) => db.run(`
-  INSERT OR REPLACE INTO lines (created_at, name, amount, currency, paid, split, project_id, id, deleted_at)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-  [l.created_at, l.name, l.amount, l.currency, l.paid, JSON.stringify(l.split), l.project_id, l.id, l.deleted_at || null])
-
-const insertProject = (p) => db.run(`
-  INSERT OR REPLACE INTO projects (id, name, participants, currency)
-  VALUES ($1, $2, $3, $4)`,
-  [p.id, p.name, JSON.stringify(p.participants), p.currency]
-)
 
 
 // Endpoints

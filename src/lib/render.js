@@ -10,14 +10,16 @@ Handlebars.registerHelper('default', function (arg1, arg2, options) {
   return arg1 || arg2
 })
 Handlebars.registerHelper('gt', function (arg1, arg2) {
-  console.log({arg2, arg1})
-  return arg1> arg2
+  return arg1 > arg2
+});
+Handlebars.registerHelper('stringify', function (arg1) {
+  return JSON.stringify(arg1)
 });
 
 // Partials
 const partialPath = root + '/views/partials/'
-const files = await glob(partialPath+'**/*.hbs')
-files.forEach(file =>{
+const files = await glob(partialPath + '**/*.hbs')
+files.forEach(file => {
   const name = file.replace(partialPath, '').replace('.hbs', '')
   Handlebars.registerPartial(name, fs.readFileSync(file).toString());
 })
