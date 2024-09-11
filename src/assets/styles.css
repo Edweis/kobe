@@ -769,6 +769,15 @@ html {
   --tw-border-opacity: 0.2;
 }
 
+.diff {
+  position: relative;
+  display: grid;
+  width: 100%;
+  overflow: hidden;
+  container-type: inline-size;
+  grid-template-columns: auto 1fr;
+}
+
 @media (hover: hover) {
   .btm-nav > *.disabled:hover,
       .btm-nav > *[disabled]:hover {
@@ -1581,6 +1590,18 @@ html {
   right: 1rem;
 }
 
+.z-10 {
+  z-index: 10;
+}
+
+.z-20 {
+  z-index: 20;
+}
+
+.z-0 {
+  z-index: 0;
+}
+
 .mx-4 {
   margin-left: 1rem;
   margin-right: 1rem;
@@ -1729,6 +1750,19 @@ html {
   background-color: var(--fallback-p,oklch(var(--p)/var(--tw-bg-opacity)));
 }
 
+.bg-primary\/30 {
+  background-color: var(--fallback-p,oklch(var(--p)/0.3));
+}
+
+.bg-error {
+  --tw-bg-opacity: 1;
+  background-color: var(--fallback-er,oklch(var(--er)/var(--tw-bg-opacity)));
+}
+
+.bg-primary\/50 {
+  background-color: var(--fallback-p,oklch(var(--p)/0.5));
+}
+
 .p-2 {
   padding: 0.5rem;
 }
@@ -1804,6 +1838,21 @@ html {
 .text-red-400 {
   --tw-text-opacity: 1;
   color: rgb(248 113 113 / var(--tw-text-opacity));
+}
+
+.text-secondary {
+  --tw-text-opacity: 1;
+  color: var(--fallback-s,oklch(var(--s)/var(--tw-text-opacity)));
+}
+
+.text-warning {
+  --tw-text-opacity: 1;
+  color: var(--fallback-wa,oklch(var(--wa)/var(--tw-text-opacity)));
+}
+
+.text-success {
+  --tw-text-opacity: 1;
+  color: var(--fallback-su,oklch(var(--su)/var(--tw-text-opacity)));
 }
 
 .shadow-xl {
@@ -2452,6 +2501,10 @@ body > section > * {
 
 [x-cloak] {
   display: none !important;
+}
+
+.last\:hidden:last-child {
+  display: none;
 }
 
 .last\:border-b-0:last-child {

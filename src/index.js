@@ -47,14 +47,14 @@ router.get('/projects/:id', async (ctx) => {
   if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
   const q = ctx.query.q || null
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  const me = JSON.parse(project.participants)[0]
+  project.participants = JSON.parse(project.participants)
+  const me = project.participants[0]
   let lines = await db.all(`
     SELECT l.*, s.amount as myAmount FROM lines l
     LEFT JOIN split s ON s.project_id=$1 AND s.line_id=l.id AND s.participant=$2
     WHERE l.project_id=$1 AND deleted_at IS NULL AND (l.name LIKE $3 OR $3 is NULL)
     ORDER BY created_at DESC
   `, [ctx.params.id, me, q && `%${q}%`]);
-  project.participants = JSON.parse(project.participants)
 
   lines = lines.map(line => {
     const myImpact = (line.paid === me) ? line.amount - line.myAmount : -line.myAmount
@@ -101,7 +101,6 @@ router.post('/projects/:projectId/lines', async (ctx) => {
   line.amount = Number(line.amount)
   line.split = (line.split || []).map(s => ({ ...s, amount: Number(s.amount ?? 0) }))
 
-  console.log(line)
   const totalSplit = line.split.reduce((acc, val) => acc + val.amount, 0)
   ctx.assert(totalSplit === Number(line.amount), 400, `Balance is off: ${totalSplit} vs ${line.amount}`)
 
@@ -128,8 +127,26 @@ router.post('/projects/:projectId/lines', async (ctx) => {
 
 router.get('/projects/:id/balance', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+  let allSpent = await db.all(`
+    SELECT s.participant, sum(s.amount) as total 
+    FROM split s
+    JOIN lines l ON l.id = s.line_id AND l.project_id = s.project_id
+    WHERE s.project_id=$1 AND l.deleted_at IS NULL
+    GROUP BY s.participant`, [ctx.params.id])
+  let allPaid = await db.all(`
+    SELECT paid as participant, sum(amount) as total 
+    FROM lines
+    WHERE project_id=$1 AND deleted_at IS NULL
+    GROUP BY paid`, [ctx.params.id])
 
-  ctx.body = render('balance', { project })
+  const balance = JSON.parse(project.participants).map(participant => {
+    const spent = allSpent.find(s => s.participant === participant)?.total ?? 0
+    const paid = allPaid.find(s => s.participant === participant)?.total ?? 0
+    const diff = paid - spent
+    return { participant, spent, paid, diff }
+  })
+  // const max = spent.reduce((acc, val) => Math.max(acc, (val.total)), 0)
+  ctx.body = render('balance', { project, balance })
 });
 
 

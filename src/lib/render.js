@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import Handlebars from 'handlebars';
-import dayjs from 'dayjs'
 import glob from 'fast-glob'
+import { toCurrency } from './helpers.js';
 const root = './src'
 
 
@@ -12,6 +12,10 @@ Handlebars.registerHelper('default', function (arg1, arg2, options) {
 Handlebars.registerHelper('gt', function (arg1, arg2) {
   return arg1 > arg2
 });
+Handlebars.registerHelper('lt', function (arg1, arg2) {
+  console.log({arg1, arg2})
+  return arg1 < arg2
+});
 Handlebars.registerHelper('stringify', function (arg1) {
   return JSON.stringify(arg1)
 });
@@ -21,6 +25,9 @@ Handlebars.registerHelper('empty', function (arg1) {
 Handlebars.registerHelper('trim-time', function (arg1) {
   console.log(arg1)
   return arg1 && arg1.split('.')[0]
+});
+Handlebars.registerHelper('currency', function (arg1, arg2) {
+  return toCurrency( arg2, arg1)
 });
 
 // Partials

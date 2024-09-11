@@ -1,16 +1,10 @@
 {{#> head title="Balance"}}
 <script>
-  function computeStyle(amount){
-    let max = 0
-    document
-      .querySelectorAll('[data-amount]')
-      .forEach(el => {
-        const candidate = Number(el.attributes['data-amount'].value)
-        max = Math.max(Math.abs(candidate), max)
-      })
-    const ratio = 100 * amount / max
+  function computeStyle(myAmount, maxAmmount){
+    const ratio = 100 * myAmount / maxAmmount
     const width = Math.abs(ratio / 2)
-    const left = amount > 0 ? 50 : 50-width
+    const left = myAmount > 0 ? 50 : 50-width
+    console.log({left, width})
     return `width: ${width}%; left: ${left}%`
   }
 </script>
@@ -27,15 +21,13 @@
       <a href="reim">Reimburse</a>
       <a href="settings">Settings</a>
     </nav>
-    <div class="grid gap-2 mt-8">
-      {{#each expenses}}
-      <article :class="expense[1]<0 && 'flex-row-reverse'" class="relative flex gap-8 py-2 items-center" x-data="{}" :data-amount="expense[1]">
-        <div x-text="expense[0]" :class="expense[1]>=0 && 'text-right'" class="w-full"></div>
-        <div x-text="toCurrency(project.currency, expense[1])" :class="expense[1]<0 && 'text-right'" class="w-full"></div>
-        <div class="absolute bg-error/50 data-[positive]:bg-primary/30 h-full" :style="computeStyle(expense[1])" :data-positive="expense[1] > 0"></div>
+    <article class="grid mt-4 border rounded-xl px-4 input-bordered">
+      {{#each balance}}
+      <article  class="text-xl justify-between flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer">
+          <span>{{participant}}</span>
+          <span class="{{#if (gt diff 0)}}text-success{{else}}text-warning{{/if}}">{{currency diff ../project.currency }}</span>
       </article>
-      <hr class=""></hr>
-      {{/expenses}}
-    </div>
+      {{/each}}
+    </article>
   </section>
 </body>
