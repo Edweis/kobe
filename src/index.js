@@ -149,6 +149,33 @@ router.get('/projects/:id/balance', async (ctx) => {
   ctx.body = render('balance', { project, balance })
 });
 
+router.get('/projects/:id/settings/', async (ctx) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+  project.participants=JSON.parse(project.participants)
+  console.log(project)
+  ctx.body = render('settings', { project })
+})
+
+router.delete('/projects/:id/participant/:name', async (ctx) => {
+  let project = await db.get('SELECT participants FROM projects WHERE id=$1', [ctx.params.id])
+  project.participants = JSON.parse(project.participants).filter(p => p !== ctx.params.name)
+  const nextParticipants = JSON.stringify(project.participants)
+  await db.run(`UPDATE projects SET participants=$1 WHERE id=$2`, [nextParticipants, ctx.params.id])
+  ctx.status = 201  
+})
+router.post('/projects/:id/participant', async (ctx) => {
+  const name = ctx.header['hx-prompt']
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+  project.participants = JSON.parse(project.participants)
+    .filter(p => p !== name)
+    .concat(name)
+    .sort()
+  const nextParticipants = JSON.stringify(project.participants)
+  await db.run(`UPDATE projects SET participants=$1 WHERE id=$2`, [nextParticipants, ctx.params.id])
+  ctx.body = render('settings', { project })
+})
+
+
 
 //assets
 router.get('/assets/styles.css', async (ctx) => {

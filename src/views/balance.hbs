@@ -17,16 +17,14 @@
       <span>{{project.name}}</span>
     </header>
     <nav>
-      <a href=".." >Back</a>
-      <a href="reim">Reimburse</a>
-      <a href="settings">Settings</a>
+      <a href=".." >Back</a>  
     </nav>
     <article class="grid mt-4 border rounded-xl px-4 input-bordered">
       {{#each balance}}
-      <article  class="text-xl justify-between flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer">
+      <div  class="text-xl justify-between flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer">
           <span>{{participant}}</span>
           <span class="{{#if (gt diff 0)}}text-success{{else}}text-warning{{/if}}">{{currency diff ../project.currency }}</span>
-      </article>
+      </div>
       {{/each}}
     </article>
   </section>
