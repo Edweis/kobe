@@ -59,7 +59,7 @@
           <div class="flex gap-2">
             <select name="paid" class="select select-bordered grow" value="{{line.paid}}">
               {{#each project.participants}}
-              <option value="{{this}}">{{this}}</option>
+              <option value="{{this}}" {{#if (eq this ../me)}}selected=""{{/if}}>{{this}}</option>
               {{/each}}
             </select>
             <select class="select select-bordered" x-model="method">

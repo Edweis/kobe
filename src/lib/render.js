@@ -9,13 +9,9 @@ const root = './src'
 Handlebars.registerHelper('default', function (arg1, arg2, options) {
   return arg1 || arg2
 })
-Handlebars.registerHelper('gt', function (arg1, arg2) {
-  return arg1 > arg2
-});
-Handlebars.registerHelper('lt', function (arg1, arg2) {
-  console.log({arg1, arg2})
-  return arg1 < arg2
-});
+Handlebars.registerHelper('eq', (arg1, arg2) => arg1===arg2);
+Handlebars.registerHelper('lt', (arg1, arg2) => arg1<arg2);
+Handlebars.registerHelper('gt', (arg1, arg2) => arg1>arg2);
 Handlebars.registerHelper('stringify', function (arg1) {
   return JSON.stringify(arg1)
 });

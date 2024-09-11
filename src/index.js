@@ -48,7 +48,7 @@ router.get('/projects/:id', async (ctx) => {
   const q = ctx.query.q || null
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
   project.participants = JSON.parse(project.participants)
-  const me = project.participants[0]
+  const me = ctx.cookies.get('me') ?? project.participants[0]
   let lines = await db.all(`
     SELECT l.*, s.amount as myAmount FROM lines l
     LEFT JOIN split s ON s.project_id=$1 AND s.line_id=l.id AND s.participant=$2
@@ -84,7 +84,8 @@ router.get('/projects/:projectId/add-line/', async (ctx) => {
   ctx.body = render('project-line', {
     project,
     line: { created_at: now, currenct: project.currency },
-    split: project.participants.map(p => ({ participant: p, amount: 0 }))
+    split: project.participants.map(p => ({ participant: p, amount: 0 })),
+    me: ctx.cookies.get('me')
   })
 });
 router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {
@@ -151,9 +152,10 @@ router.get('/projects/:id/balance', async (ctx) => {
 
 router.get('/projects/:id/settings/', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  project.participants=JSON.parse(project.participants)
-  console.log(project)
-  ctx.body = render('settings', { project })
+  project.participants = JSON.parse(project.participants)
+  const me = ctx.cookies.get('me')
+  console.log({me})
+  ctx.body = render('settings', { project, me })
 })
 
 router.delete('/projects/:id/participant/:name', async (ctx) => {
@@ -161,7 +163,7 @@ router.delete('/projects/:id/participant/:name', async (ctx) => {
   project.participants = JSON.parse(project.participants).filter(p => p !== ctx.params.name)
   const nextParticipants = JSON.stringify(project.participants)
   await db.run(`UPDATE projects SET participants=$1 WHERE id=$2`, [nextParticipants, ctx.params.id])
-  ctx.status = 201  
+  ctx.status = 201
 })
 router.post('/projects/:id/participant', async (ctx) => {
   const name = ctx.header['hx-prompt']
@@ -173,6 +175,10 @@ router.post('/projects/:id/participant', async (ctx) => {
   const nextParticipants = JSON.stringify(project.participants)
   await db.run(`UPDATE projects SET participants=$1 WHERE id=$2`, [nextParticipants, ctx.params.id])
   ctx.body = render('settings', { project })
+})
+router.put('/projects/:id/me', async (ctx) => {
+  ctx.cookies.set('me', ctx.request.body.me)
+  ctx.status = 201
 })
 
 
