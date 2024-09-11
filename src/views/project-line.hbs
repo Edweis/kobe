@@ -7,16 +7,20 @@
    const total = Number(document.querySelector('input[name=amount]').value) ?? 0 
    const indivAmount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)
    let remaining = round(total - indivAmount * checked.length, DECIMALS) // remaining cents lost in rounding
-   
+   console.log({remaining, indivAmount})
    const nextSplit = []
    document.querySelectorAll('input[data-included]').forEach(el => {
     const participant = el.attributes['data-included'].value
     let amount
     if(!el.checked) amount = 0
-    else if(remaining===0)amount = round(indivAmount + remaining, DECIMALS) // first person gets the extra cents
+    else if(remaining!==0){// first person gets the extra cents
+      amount = round(indivAmount + remaining, DECIMALS)
+      remaining=0
+    } 
     else amount = indivAmount
     nextSplit.push({participant, amount})
    })
+   console.log({nextSplit})
    return nextSplit
   }
 

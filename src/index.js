@@ -13,15 +13,13 @@ const router = new Router();
 app
   .use(logger())
   .use(bodyParser())
-// .use(async (ctx, next) => {
-//   console.log(ctx.method, ctx.path)
-//   try {
-//     await next()
-//   } catch (error) {
-//     console.error(error, Object.keys(error))
-//     ctx.body = error.message
-//   }
-// })
+  .use(async (ctx, next)=>{
+    await next();
+    const ifMod = ctx.request.header['if-modified-since'];
+    const lastMod = ctx.response.header['last-modified']
+    if(ifMod && ifMod===lastMod) 
+      ctx.status=304
+  }) 
 
 
 
@@ -47,7 +45,11 @@ router.get('/projects/:id', async (ctx) => {
   if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
   const q = ctx.query.q || null
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  if (project == null) return ctx.redirect('/')
+  if (project == null) return ctx.redirect('/');
+
+  // Cache by last modified date
+  let latest = await db.get('SELECT updated_at FROM lines WHERE project_id=$1 ORDER BY updated_at DESC LIMIT 1', [ctx.params.id])
+  ctx.set('last-modified', new Date(latest.updated_at).toUTCString())
 
   project.participants = JSON.parse(project.participants)
   const me = ctx.cookies.get('me') ?? project.participants[0]
@@ -78,12 +80,12 @@ router.get('/projects/:id/manifest.json', async (ctx) => {
     "$schema": "https://json.schemastore.org/web-manifest-combined.json",
     "name": project.name,
     "short_name": project.name,
-    "start_url": "/projects/"+ctx.params.id,
+    "start_url": "/projects/" + ctx.params.id,
     "display": "standalone",
     "background_color": "#121c22",
     "description": "Organise group expenses on the web.",
     "icons": imgSizes.map(s => ({ "src": `/assets/icon-${s}x${s}.png`, "sizes": `${s}x${s}`, "type": "image/png", "purpose": "maskable any" })),
-    "protocol_handlers": [ { "protocol": "web+over", "url": "/kobe?type=%s" } ]
+    "protocol_handlers": [{ "protocol": "web+over", "url": "/kobe?type=%s" }]
   }
 })
 router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
@@ -108,7 +110,12 @@ router.get('/projects/:projectId/add-line/', async (ctx) => {
 });
 router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {
   const { projectId, lineId } = ctx.params
-  await db.get('UPDATE lines  SET deleted_at = datetime(\'now\') WHERE project_id=$1 AND id=$2', [projectId, lineId])
+  const now = new Date().toISOString()
+  await db.get(`
+    UPDATE lines 
+    SET deleted_at=$1, updated_at=$1 
+    WHERE project_id=$2 AND id=$3`, 
+  [now, projectId, lineId])
   ctx.status = 204
   return ctx.set('HX-Redirect', `/projects/${projectId}/`)
 })
@@ -122,6 +129,7 @@ router.post('/projects/:projectId/lines', async (ctx) => {
 
   const totalSplit = line.split.reduce((acc, val) => acc + val.amount, 0)
   ctx.assert(totalSplit === Number(line.amount), 400, `Balance is off: ${totalSplit} vs ${line.amount}`)
+
 
   await db.run(`
     INSERT INTO lines (id, project_id, name, amount, paid, updated_at, created_at)
@@ -172,7 +180,6 @@ router.get('/projects/:id/settings/', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
   project.participants = JSON.parse(project.participants)
   const me = ctx.cookies.get('me')
-  console.log({ me })
   ctx.body = render('settings', { project, me })
 })
 
@@ -184,7 +191,7 @@ router.delete('/projects/:id/participant/:name', async (ctx) => {
   ctx.status = 201
 })
 router.post('/projects/:id/participant', async (ctx) => {
-  const name = ctx.header['hx-prompt']
+  const name = ctx.header['hx-prompt'].trim()
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
   project.participants = JSON.parse(project.participants)
     .filter(p => p !== name)
