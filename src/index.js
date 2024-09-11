@@ -47,6 +47,8 @@ router.get('/projects/:id', async (ctx) => {
   if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
   const q = ctx.query.q || null
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+  if (project == null) return ctx.redirect('/')
+
   project.participants = JSON.parse(project.participants)
   const me = ctx.cookies.get('me') ?? project.participants[0]
   let lines = await db.all(`
@@ -54,6 +56,7 @@ router.get('/projects/:id', async (ctx) => {
     LEFT JOIN split s ON s.project_id=$1 AND s.line_id=l.id AND s.participant=$2
     WHERE l.project_id=$1 AND deleted_at IS NULL AND (l.name LIKE $3 OR $3 is NULL)
     ORDER BY created_at DESC
+    LIMIT 20
   `, [ctx.params.id, me, q && `%${q}%`]);
 
   lines = lines.map(line => {
@@ -68,6 +71,21 @@ router.get('/projects/:id', async (ctx) => {
   })
   ctx.body = render('project', { project, lines, q })
 });
+router.get('/projects/:id/manifest.json', async (ctx) => {
+  const imgSizes = [48, 72, 96, 128, 144, 152, 192, 384, 512,]
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+  ctx.body = {
+    "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+    "name": project.name,
+    "short_name": project.name,
+    "start_url": "/projects/"+ctx.params.id,
+    "display": "standalone",
+    "background_color": "#121c22",
+    "description": "Organise group expenses on the web.",
+    "icons": imgSizes.map(s => ({ "src": `/assets/icon-${s}x${s}.png`, "sizes": `${s}x${s}`, "type": "image/png", "purpose": "maskable any" })),
+    "protocol_handlers": [ { "protocol": "web+over", "url": "/kobe?type=%s" } ]
+  }
+})
 router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, ctx.params.lineId])
@@ -154,7 +172,7 @@ router.get('/projects/:id/settings/', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
   project.participants = JSON.parse(project.participants)
   const me = ctx.cookies.get('me')
-  console.log({me})
+  console.log({ me })
   ctx.body = render('settings', { project, me })
 })
 
