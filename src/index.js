@@ -17,6 +17,7 @@ app
     await next();
     const ifMod = ctx.request.header['if-modified-since'];
     const lastMod = ctx.response.header['last-modified']
+    console.log({ ifMod, lastMod })
     if (ifMod && ifMod === lastMod)
       ctx.status = 304
   })
@@ -94,8 +95,12 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [ctx.params.projectId, ctx.params.lineId])
   ctx.set('last-modified', new Date(line.updated_at).toUTCString())
 
-  project.participants = JSON.parse(project.participants)
-  ctx.body = render('project-line', { project, line, split })
+  project.participants = JSON.parse(project.participants);
+
+  const perfectSplit = line.amount / split.filter(s => s.amount > 0).length
+  const isEqually = split.every(({ amount }) => amount - perfectSplit <= 0.1 || amount === 0)
+  const method = isEqually ? 'equally' : 'amount'
+  ctx.body = render('project-line', { project, line, split, method })
 });
 router.get('/projects/:projectId/add-line/', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
@@ -106,7 +111,7 @@ router.get('/projects/:projectId/add-line/', async (ctx) => {
     project,
     line: { created_at: now, currenct: project.currency },
     split: project.participants.map(p => ({ participant: p, amount: 0 })),
-    me: ctx.cookies.get('me')
+    me: ctx.cookies.get('me'),
   })
 });
 router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {
@@ -125,6 +130,7 @@ router.post('/projects/:projectId/lines', async (ctx) => {
   const { projectId } = ctx.params
   const now = new Date().toISOString()
   line.id = line.id || randKey('lin_')
+  line.created_at = line.created_at ?? now
   line.amount = Number(line.amount)
   line.split = (line.split || []).map(s => ({ ...s, amount: Number(s.amount ?? 0) }))
 
@@ -134,10 +140,10 @@ router.post('/projects/:projectId/lines', async (ctx) => {
 
   await db.run(`
     INSERT INTO lines (id, project_id, name, amount, paid, updated_at, created_at)
-    VALUES            ($1,         $2,   $3,     $4,   $5,         $6,         $6)
+    VALUES            ($1,         $2,   $3,     $4,   $5,         $6,         $7)
     ON CONFLICT(id, project_id) DO UPDATE SET 
-      name=$3, amount=$4, paid=$5, updated_at=$6`,
-    [line.id, projectId, line.name, line.amount, line.paid, now])
+      name=$3, amount=$4, paid=$5, updated_at=$6, created_at=$7`,
+    [line.id, projectId, line.name, line.amount, line.paid, now, line.created_at])
   const promises = line.split.map(async ({ participant, amount }) => db.run(`
       INSERT INTO split (participant, amount, project_id, line_id)
       VALUES            (         $1,     $2,          $3,     $4)
@@ -146,6 +152,8 @@ router.post('/projects/:projectId/lines', async (ctx) => {
     [participant, amount, projectId, line.id])
   )
   await Promise.all(promises)
+  const nextLine = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, line.id])
+  console.log(nextLine)
 
   ctx.status = 201
   return ctx.set('HX-Redirect', `/projects/${projectId}/`)
@@ -216,7 +224,7 @@ router.get('/assets/htmx.js', sendStatic('./src/assets/htmx.js'));
 router.get('/assets/ah-card.jpg', sendStatic('./src/assets/ah-card.jpg'));
 router.get('/assets/:img', async (ctx) => {
   const img = ctx.params.img
-  if (/icon-\d+x\d+\.(png|ico)/.test(img)) 
+  if (/icon-\d+x\d+\.(png|ico)/.test(img))
     return sendStatic('./src/assets/' + img)(ctx)
 });
 

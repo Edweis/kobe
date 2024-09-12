@@ -1,29 +1,51 @@
 {{#> head title="Project"}}
 <script>
-  const round = (value, digits) =>Number(value.toFixed(digits))
-  function computeSplit(){
-   const DECIMALS = 2
-   const checked = document.querySelectorAll('input[data-included]:checked')
-   const total = Number(document.querySelector('input[name=amount]').value) ?? 0 
-   const indivAmount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)
-   let remaining = round(total - indivAmount * checked.length, DECIMALS) // remaining cents lost in rounding
-   console.log({remaining, indivAmount})
-   const nextSplit = []
-   document.querySelectorAll('input[data-included]').forEach(el => {
+const round = (value, digits) => Number(value.toFixed(digits))
+const DECIMALS = 2
+function computeSplit() {
+  const checked = document.querySelectorAll('input[data-included][type=checkbox]:checked')
+  const total = Number(document.querySelector('input[name=amount]').value) ?? 0
+  const indivAmount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)
+  let remaining = round(total - indivAmount * checked.length, DECIMALS) // remaining cents lost in rounding
+
+  const nextSplit = []
+  document.querySelectorAll('input[data-included][type=checkbox]').forEach(el => {
     const participant = el.attributes['data-included'].value
     let amount
-    if(!el.checked) amount = 0
-    else if(remaining!==0){// first person gets the extra cents
+    if (!el.checked) amount = 0
+    else if (remaining !== 0) { // first person gets the extra cents
       amount = round(indivAmount + remaining, DECIMALS)
-      remaining=0
-    } 
+      remaining = 0
+    }
     else amount = indivAmount
-    nextSplit.push({participant, amount})
-   })
-   console.log({nextSplit})
-   return nextSplit
-  }
+    nextSplit.push({ participant, amount })
+  })
+  return nextSplit
+}
 
+function computeAmount(participantChanged) {
+  const total = Number(document.querySelector('input[name=amount]').value) ?? 0
+  let allocated = total
+  const nextSplit = []
+
+  document.querySelectorAll('input[data-included][type=checkbox]').forEach(el => {
+    if (!el.checked) return nextSplit.push({ participant, amount: 0 })
+
+    const participant = el.attributes['data-included'].value;
+    const inputForm = el.parentNode.querySelector('input[data-included][type=text]')
+    const amount = Number(inputForm.value) || 0
+    allocated -= amount
+    nextSplit.push({ participant, amount, allocated })
+  })
+
+  if (allocated !== 0) {
+    const participantIndex = nextSplit.findIndex(s => s.participant === participantChanged);
+    const nextParticipant = (participantIndex + 1) % nextSplit.length
+    nextSplit[nextParticipant].amount += allocated
+    document.querySelector('input[data-included][type=text]').value += allocated
+  }
+  return nextSplit
+}
 </script>
 {{/head}}
 <body hx-ext="response-targets">
@@ -35,7 +57,7 @@
     <nav>
       <a href="..">Back</a>
     </nav>
-    <form class="grid" hx-post="/projects/{{project.id}}/lines" hx-target-400="#error" x-data="{ method: 'equally', split: {{stringify split}} }">
+    <form class="grid" hx-post="/projects/{{project.id}}/lines" hx-target-400="#error" x-data="{ method: '{{default method 'equally'}}', split: {{stringify split}} }">
       <input type="hidden" name="project_id" value="{{project.id}}"/>
       <input type="hidden" name="id" value="{{line.id}}"/>
       <label class="form-control">
@@ -66,7 +88,7 @@
               <option value="{{this}}" {{#if (eq this ../me)}}selected=""{{/if}}>{{this}}</option>
               {{/each}}
             </select>
-            <select class="select select-bordered" x-model="method">
+            <select class="select select-bordered" x-model="method" @change="if(method === 'equally') split = computeSplit()">
               <option value="equally">Equally</option>
               <option value="amount">As amount</option>
             </select>
@@ -80,7 +102,7 @@
           <span :for="part.participant" x-text="part.participant" class="flex items-center gap-4 whitespace-nowrap"></span>
           <input :name="'split['+index+'][participant]'" x-model="part.participant" type="hidden"/>
           <span x-show="method === 'equally'" x-text="part.amount" class="ml-auto"></span>
-          <input x-show="method === 'amount'" :name="'split['+index+'][amount]'" x-model="part.amount" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text"/>
+          <input x-show="method === 'amount'" :name="'split['+index+'][amount]'" x-model="part.amount" class="input input-bordered w-full" inputmode="numeric" pattern="[0-9.\-]*" type="text" :data-included="part.participant" @change="split = computeAmount(part.participant)"/>
           <span>{{project.currency}}</span>
         </label>
         </template>

@@ -54,10 +54,12 @@ export function shortDate(dateString) {
 import fs from 'fs'
 export const sendStatic = (filePath) => async (ctx, next) => {
   const stats = fs.statSync(filePath)
-  if(filePath.endsWith('.css')) ctx.set('content-type', 'text/css')
-  if(filePath.endsWith('.js')) ctx.set('content-type', 'application/javascript')
-  if(filePath.endsWith('.jpg')) ctx.set('content-type', 'image/jpeg')
-  if(filePath.endsWith('.png')) ctx.set('content-type', 'image/png')
-  ctx.set('last-modified', stats.mtime);
+  if (filePath.endsWith('.css')) ctx.set('content-type', 'text/css')
+  if (filePath.endsWith('.js')) ctx.set('content-type', 'application/javascript')
+  if (filePath.endsWith('.jpg')) ctx.set('content-type', 'image/jpeg')
+  if (filePath.endsWith('.png')) ctx.set('content-type', 'image/png')
+  ctx.set('last-modified', new Date(stats.mtime).toUTCString());
   ctx.body = fs.createReadStream(filePath)
 }
+
+
