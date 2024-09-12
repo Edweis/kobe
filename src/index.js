@@ -17,7 +17,6 @@ app
     await next();
     const ifMod = ctx.request.header['if-modified-since'];
     const lastMod = ctx.response.header['last-modified']
-    console.log({ ifMod, lastMod })
     if (ifMod && ifMod === lastMod)
       ctx.status = 304
   })
@@ -42,9 +41,11 @@ router.post('/projects', async ctx => {
   )
   return ctx.redirect('/projects/' + id)
 })
+const SIZE = 20;
 router.get('/projects/:id', async (ctx) => {
   if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
   const q = ctx.query.q || null
+  const page = Number(ctx.query.page) || 1
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
   if (project == null) return ctx.redirect('/');
 
@@ -56,11 +57,17 @@ router.get('/projects/:id', async (ctx) => {
   const me = ctx.cookies.get('me') ?? project.participants[0]
   let lines = await db.all(`
     SELECT l.*, s.amount as myAmount FROM lines l
-    LEFT JOIN split s ON s.project_id=$1 AND s.line_id=l.id AND s.participant=$2
-    WHERE l.project_id=$1 AND deleted_at IS NULL AND (l.name LIKE $3 OR $3 is NULL)
+    LEFT JOIN split s ON s.project_id=$projectId AND s.line_id=l.id AND s.participant=$me
+    WHERE l.project_id=$projectId AND deleted_at IS NULL AND (l.name LIKE $q OR $q is NULL)
     ORDER BY created_at DESC
-    LIMIT 20
-  `, [ctx.params.id, me, q && `%${q}%`]);
+    LIMIT $limit OFFSET $offset
+  `, {
+    $projectId: ctx.params.id,
+    $me: me,
+    $q: q && `%${q}%`,
+    $limit: SIZE,
+    $offset: (page - 1) * SIZE
+  });
 
   lines = lines.map(line => {
     const myImpact = (line.paid === me) ? line.amount - line.myAmount : -line.myAmount
@@ -72,7 +79,7 @@ router.get('/projects/:id', async (ctx) => {
       myImpact
     }
   })
-  ctx.body = render('project', { project, lines, q })
+  ctx.body = render('project', { project, lines, q, nextPage: page + 1 })
 });
 router.get('/projects/:id/manifest.json', async (ctx) => {
   const imgSizes = [48, 72, 96, 128, 144, 152, 192, 384, 512,]
@@ -154,7 +161,7 @@ router.post('/projects/:projectId/lines', async (ctx) => {
   )
   await Promise.all(promises)
   const nextLine = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, line.id])
-  console.log(nextLine)
+
 
   ctx.status = 201
   return ctx.set('HX-Redirect', `/projects/${projectId}/`)
