@@ -1596,11 +1596,6 @@ html {
   right: 1rem;
 }
 
-.mx-4 {
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
-
 .my-2 {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
@@ -2402,6 +2397,8 @@ body {
   height: 100vh;
   flex-direction: column;
   gap: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   padding-top: 1rem;
 }
 
@@ -2448,8 +2445,6 @@ body > section > * {
 body > section > * {
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
 }
 
 @media (min-width: 1024px) {
@@ -2461,12 +2456,6 @@ body > section > * {
 .label {
   padding-bottom: 0px;
   padding-left: 0px;
-}
-
-/*For Alpinsjs transitions @see https://alpinejs.dev/directives/cloak */
-
-[x-cloak] {
-  display: none !important;
 }
 
 .last\:border-b-0:last-child {
@@ -2495,4 +2484,4 @@ body > section > * {
   .md\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-} 
+}

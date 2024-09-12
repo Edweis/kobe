@@ -83,9 +83,9 @@ function computeAmount(participantChanged) {
         <label class="form-control grow">
           <span class="label label-text">Paid by</span>
           <div class="flex gap-2">
-            <select name="paid" class="select select-bordered grow" value="{{line.paid}}">
+            <select name="paid" class="select select-bordered grow" >
               {{#each project.participants}}
-              <option value="{{this}}" {{#if (eq this ../me)}}selected=""{{/if}}>{{this}}</option>
+              <option value="{{this}}" {{#if (eq this ../line.paid)}}selected=""{{/if}}>{{this}}</option>
               {{/each}}
             </select>
             <select class="select select-bordered" x-model="method" @change="if(method === 'equally') split = computeSplit()">

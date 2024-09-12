@@ -107,11 +107,12 @@ router.get('/projects/:projectId/add-line/', async (ctx) => {
   project.participants = JSON.parse(project.participants)
 
   const now = new Date().toISOString().split('.')[0]
+  const me = ctx.cookies.get('me')
   ctx.body = render('project-line', {
     project,
-    line: { created_at: now, currenct: project.currency },
+    line: { created_at: now, currenct: project.currency, paid: me },
     split: project.participants.map(p => ({ participant: p, amount: 0 })),
-    me: ctx.cookies.get('me'),
+    me
   })
 });
 router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {

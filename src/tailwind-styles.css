@@ -18,18 +18,15 @@ h3 {
 }
 
 body {
-  @apply flex flex-col gap-4 pt-4 h-screen
+  @apply flex flex-col gap-4 pt-4 h-screen px-4
 }
 body > section {
   @apply flex flex-col gap-4
 }
 body > section > * {
-  @apply px-4 container lg:max-w-3xl mx-auto
+  @apply container lg:max-w-3xl mx-auto
 }
 
 .label {
   @apply pb-0 pl-0
 }
-
-/*For Alpinsjs transitions @see https://alpinejs.dev/directives/cloak */
-[x-cloak] { display: none !important; } 
