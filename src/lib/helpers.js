@@ -57,6 +57,7 @@ export const sendStatic = (filePath) => async (ctx, next) => {
   if(filePath.endsWith('.css')) ctx.set('content-type', 'text/css')
   if(filePath.endsWith('.js')) ctx.set('content-type', 'application/javascript')
   if(filePath.endsWith('.jpg')) ctx.set('content-type', 'image/jpeg')
+  if(filePath.endsWith('.png')) ctx.set('content-type', 'image/png')
   ctx.set('last-modified', stats.mtime);
   ctx.body = fs.createReadStream(filePath)
 }

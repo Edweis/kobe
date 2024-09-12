@@ -13,13 +13,13 @@ const router = new Router();
 app
   .use(logger())
   .use(bodyParser())
-  .use(async (ctx, next)=>{
+  .use(async (ctx, next) => {
     await next();
     const ifMod = ctx.request.header['if-modified-since'];
     const lastMod = ctx.response.header['last-modified']
-    if(ifMod && ifMod===lastMod) 
-      ctx.status=304
-  }) 
+    if (ifMod && ifMod === lastMod)
+      ctx.status = 304
+  })
 
 
 
@@ -92,6 +92,7 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, ctx.params.lineId])
   let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [ctx.params.projectId, ctx.params.lineId])
+  ctx.set('last-modified', new Date(line.updated_at).toUTCString())
 
   project.participants = JSON.parse(project.participants)
   ctx.body = render('project-line', { project, line, split })
@@ -114,8 +115,8 @@ router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {
   await db.get(`
     UPDATE lines 
     SET deleted_at=$1, updated_at=$1 
-    WHERE project_id=$2 AND id=$3`, 
-  [now, projectId, lineId])
+    WHERE project_id=$2 AND id=$3`,
+    [now, projectId, lineId])
   ctx.status = 204
   return ctx.set('HX-Redirect', `/projects/${projectId}/`)
 })
@@ -215,12 +216,8 @@ router.get('/assets/htmx.js', sendStatic('./src/assets/htmx.js'));
 router.get('/assets/ah-card.jpg', sendStatic('./src/assets/ah-card.jpg'));
 router.get('/assets/:img', async (ctx) => {
   const img = ctx.params.img
-  if (/icon-\d+x\d+\.(png|ico)/.test(img)) {
-    ctx.set('content-type', 'image/png')
-    ctx.set('Cache-Control', 'public, max-age=31536000')
-    const image = await fs.readFile('./src/assets/' + img).catch(() => undefined)
-    if (image) ctx.body = image
-  }
+  if (/icon-\d+x\d+\.(png|ico)/.test(img)) 
+    return sendStatic('./src/assets/' + img)(ctx)
 });
 
 app
