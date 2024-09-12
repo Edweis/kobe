@@ -5,7 +5,7 @@ import fs from 'fs/promises'
 import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import db from './lib/db.js';
-import { randKey, shortDate, toCurrency } from './lib/helpers.js';
+import { randKey, sendStatic, shortDate, toCurrency } from './lib/helpers.js';
 const app = new Koa();
 const router = new Router();
 
@@ -209,31 +209,10 @@ router.put('/projects/:id/me', async (ctx) => {
 
 
 //assets
-router.get('/assets/styles.css', async (ctx) => {
-  ctx.set('content-type', 'text/css')
-  ctx.body = await fs.readFile('./src/assets/styles.css')
-});
-router.get('/assets/alpine.js', async (ctx) => {
-  ctx.set('content-type', 'application/javascript')
-  ctx.set('Cache-Control', 'public, max-age=31536000')
-  ctx.body = await fs.readFile('./src/assets/alpine.js')
-});
-router.get('/assets/htmx.js', async (ctx) => {
-  ctx.set('content-type', 'application/javascript')
-  ctx.set('Cache-Control', 'public, max-age=31536000')
-  ctx.body = await fs.readFile('./src/assets/htmx.js')
-});
-
-
-router.get('/manifest.json', async (ctx) => {
-  ctx.set('content-type', 'application/json')
-  ctx.body = await fs.readFile('./src/assets/manifest.json')
-});
-router.get('/assets/ah-card.jpg', async (ctx) => {
-  ctx.set('content-type', 'image/jpeg')
-  ctx.set('Cache-Control', 'public, max-age=31536000')
-  ctx.body = await fs.readFile('./src/assets/ah-card.jpg')
-});
+router.get('/assets/styles.css', sendStatic('./src/assets/styles.css'));
+router.get('/assets/alpine.js', sendStatic('./src/assets/alpine.js'));
+router.get('/assets/htmx.js', sendStatic('./src/assets/htmx.js'));
+router.get('/assets/ah-card.jpg', sendStatic('./src/assets/ah-card.jpg'));
 router.get('/assets/:img', async (ctx) => {
   const img = ctx.params.img
   if (/icon-\d+x\d+\.(png|ico)/.test(img)) {

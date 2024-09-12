@@ -51,3 +51,12 @@ export function shortDate(dateString) {
   return `${day} ${month}`;
 }
 
+import fs from 'fs'
+export const sendStatic = (filePath) => async (ctx, next) => {
+  const stats = fs.statSync(filePath)
+  if(filePath.endsWith('.css')) ctx.set('content-type', 'text/css')
+  if(filePath.endsWith('.js')) ctx.set('content-type', 'application/javascript')
+  if(filePath.endsWith('.jpg')) ctx.set('content-type', 'image/jpeg')
+  ctx.set('last-modified', stats.mtime);
+  ctx.body = fs.createReadStream(filePath)
+}
