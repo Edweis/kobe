@@ -2403,52 +2403,49 @@ body {
 }
 
 body > section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-body > section > * {
   width: 100%;
 }
 
 @media (min-width: 640px) {
-  body > section > * {
+  body > section {
     max-width: 640px;
   }
 }
 
 @media (min-width: 768px) {
-  body > section > * {
+  body > section {
     max-width: 768px;
   }
 }
 
 @media (min-width: 1024px) {
-  body > section > * {
+  body > section {
     max-width: 1024px;
   }
 }
 
 @media (min-width: 1280px) {
-  body > section > * {
+  body > section {
     max-width: 1280px;
   }
 }
 
 @media (min-width: 1536px) {
-  body > section > * {
+  body > section {
     max-width: 1536px;
   }
 }
 
-body > section > * {
+body > section {
   margin-left: auto;
   margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 @media (min-width: 1024px) {
-  body > section > * {
+  body > section {
     max-width: 48rem;
   }
 }

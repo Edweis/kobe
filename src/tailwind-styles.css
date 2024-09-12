@@ -21,10 +21,7 @@ body {
   @apply flex flex-col gap-4 pt-4 h-screen px-4
 }
 body > section {
-  @apply flex flex-col gap-4
-}
-body > section > * {
-  @apply container lg:max-w-3xl mx-auto
+  @apply flex flex-col gap-4 container lg:max-w-3xl mx-auto
 }
 
 .label {
