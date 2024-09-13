@@ -28,14 +28,16 @@
       </fieldset>
     </div>
     <form>
-      <label class="form-control">
-        <span class="label label-text">I am</span>
-        <select name="me" class="select select-bordered" hx-put="/projects/{{project.id}}/me" hx-swap="none"> 
-          {{#each project.participants}}
-          <option value="{{this}}" {{#if (eq this ../me)}}selected=""{{/if}}>{{this}}</option>
-          {{/each}}
-        </select>
-      </label>
+      <h3 class="mt-4">I am</h3>
+      <select name="me" class="select select-bordered" hx-put="/projects/{{project.id}}/me" hx-swap="none"> 
+        {{#each project.participants}}
+        <option value="{{this}}" {{#if (eq this ../me)}}selected=""{{/if}}>{{this}}</option>
+        {{/each}}
+      </select>
     </form>
+    <div>
+      <h3 class="mt-4">Danger zone</h3>
+      <button hx-confirm="Are you sure you want to archive the project?" hx-delete="/projects/{{project.id}}" hx-push-url="/" class="btn btn-accent">Archive project</button>
+    </div>
   </section>
 </body>

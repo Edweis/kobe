@@ -58,7 +58,9 @@ export const sendStatic = (filePath) => async (ctx,  ) => {
   if (filePath.endsWith('.js')) ctx.set('content-type', 'application/javascript')
   if (filePath.endsWith('.jpg')) ctx.set('content-type', 'image/jpeg')
   if (filePath.endsWith('.png')) ctx.set('content-type', 'image/png')
-  ctx.set('last-modified', new Date(stats.mtime).toUTCString());
+  
+  if (filePath.endsWith('.js')) ctx.set('cache-control', 'max-age=31536000, immutable')
+  ctx.set('etag', new Date(stats.mtime).toISOString());
   ctx.body = fs.createReadStream(filePath)
 }
 

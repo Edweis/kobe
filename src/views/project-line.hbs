@@ -62,7 +62,7 @@ function computeAmount(participantChanged) {
       <input type="hidden" name="id" value="{{line.id}}"/>
       <label class="form-control">
         <span class="label label-text">Title</span>
-        <input list="title-list" hx-trigger="keyup changed" hx-get="/projects/{{project.id}}/autocomplete" hx-target="next datalist" hx-swap="innerHTML" name="name" class="input input-bordered" autofocus="" required="" value="{{line.name}}" />
+        <input list="title-list" hx-trigger="keyup changed" hx-get="/projects/{{project.id}}/autocomplete" hx-target="next datalist" hx-swap="innerHTML" name="name" class="input input-bordered" autofocus="" autocomplete="off" required="" value="{{line.name}}" />
         <datalist id="title-list"></datalist>
       </label>
       <label class="form-control">

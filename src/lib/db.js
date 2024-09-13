@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS projects (
   id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   currency VARCHAR(3) NOT NULL,
+  deleted_at DATE,
   
   participants JSONB
 );

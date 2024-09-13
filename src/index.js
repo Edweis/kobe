@@ -7,6 +7,7 @@ import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import db from './lib/db.js';
 import { randKey, sendStatic, shortDate, toCurrency } from './lib/helpers.js';
+import dayjs from 'dayjs';
 const app = new Koa();
 const router = new Router();
 
@@ -16,17 +17,26 @@ app
   .use(bodyParser())
   .use(async (ctx, next) => {
     await next();
-    const ifMod = ctx.request.header['if-modified-since'];
-    const lastMod = ctx.response.header['last-modified']
-    if (ifMod && ifMod === lastMod)
+
+    const ifMatch = ctx.request.header['if-none-match'];
+    const etag = ctx.response.header['etag']
+    console.log({ifMatch, etag})
+    if (etag && ifMatch === etag)
       ctx.status = 304
   })
 
-
+router.param('projectId', async (projectId, ctx, next) => {
+  let project = await db.get('SELECT * FROM projects WHERE id=$1', [projectId])
+  if (project == null) return ctx.redirect('/');
+  project.participants = JSON.parse(project.participants)
+  ctx.state.project = project;
+  ctx.state.me = ctx.cookies.get(projectId+':me') ?? project.participants[0]
+  ctx.state.me = ctx.state.me && ctx.state.me.replace('Ã§', 'ç')
+  return next()
+})
 
 // Endpoints
 router.get('/', async (ctx) => {
-  // ctx.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=5');
   let projects = await db.all('SELECT id, name FROM projects')
   ctx.body = render('list-projects', { projects })
 });
@@ -38,24 +48,22 @@ router.post('/projects', async ctx => {
   await db.run(`
     INSERT OR REPLACE INTO projects (id, name, participants, currency)
     VALUES ($1, $2, $3, $4)`,
-    [id, name, [], 'EUR']
+    [id, name, '[]', 'EUR']
   )
   return ctx.redirect('/projects/' + id)
 })
 const SIZE = 20;
-router.get('/projects/:id', async (ctx) => {
+router.get('/projects/:projectId', async (ctx) => {
   if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
   const q = ctx.query.q || null
   const page = Number(ctx.query.page) || 1
-  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  if (project == null) return ctx.redirect('/');
+  const project = ctx.state.project
 
   // Cache by last modified date
-  let latest = await db.get('SELECT updated_at FROM lines WHERE project_id=$1 ORDER BY updated_at DESC LIMIT 1', [ctx.params.id])
-  ctx.set('last-modified', new Date(latest.updated_at).toUTCString())
+  let latest = await db.get('SELECT updated_at FROM lines WHERE project_id=$1 ORDER BY updated_at DESC LIMIT 1', [project.id])
+  if(latest) ctx.set('etag', latest.updated_at+'#'+ctx.state.me)
 
-  project.participants = JSON.parse(project.participants)
-  const me = ctx.cookies.get('me') ?? project.participants[0]
+  const me = ctx.state.me
   let lines = await db.all(`
     SELECT l.*, s.amount as myAmount FROM lines l
     LEFT JOIN split s ON s.project_id=$projectId AND s.line_id=l.id AND s.participant=$me
@@ -63,7 +71,7 @@ router.get('/projects/:id', async (ctx) => {
     ORDER BY created_at DESC
     LIMIT $limit OFFSET $offset
   `, {
-    $projectId: ctx.params.id,
+    $projectId: project.id,
     $me: me,
     $q: q && `%${q}%`,
     $limit: SIZE,
@@ -80,25 +88,26 @@ router.get('/projects/:id', async (ctx) => {
       myImpact
     }
   })
-  ctx.body = render('project', { project, lines, q, nextPage: page + 1 })
+  ctx.body = render('project', { project: ctx.state.project, lines, q, nextPage: page + 1 })
 });
-router.get('/projects/:id/autocomplete', async ctx => {
+router.get('/projects/:projectId/autocomplete', async ctx => {
   const response = await db.all(
     `SELECT DISTINCT TRIM(name) as name FROM lines WHERE project_id=? AND name LIKE ? LIMIT 10`,
-    [ctx.params.id, '%'+ctx.query.name+'%']
+    [ctx.params.projectId, '%' + ctx.query.name + '%']
   )
   const options = response.map(r => r.name)
+  console.log(options)
   const template = Handlebars.compile(/*html*/`{{#each options}}<option value="{{this}}"></option>{{/each}}`)
-  ctx.body = template({options})
+  ctx.body = template({ options })
 })
-router.get('/projects/:id/manifest.json', async (ctx) => {
+router.get('/projects/:projectId/manifest.json', async (ctx) => {
   const imgSizes = [48, 72, 96, 128, 144, 152, 192, 384, 512,]
-  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+  const project = ctx.state.project
   ctx.body = {
     "$schema": "https://json.schemastore.org/web-manifest-combined.json",
     "name": project.name,
     "short_name": project.name,
-    "start_url": "/projects/" + ctx.params.id,
+    "start_url": "/projects/" + project.id,
     "display": "standalone",
     "background_color": "#121c22",
     "description": "Organise group expenses on the web.",
@@ -107,12 +116,10 @@ router.get('/projects/:id/manifest.json', async (ctx) => {
   }
 })
 router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
-  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
-  let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, ctx.params.lineId])
-  let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [ctx.params.projectId, ctx.params.lineId])
-  ctx.set('last-modified', new Date(line.updated_at).toUTCString())
-
-  project.participants = JSON.parse(project.participants);
+  let project = ctx.state.project
+  let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [project.id, ctx.params.lineId])
+  let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [project.id, ctx.params.lineId])
+  ctx.set('etag', line.updated_at+'#'+ctx.state.me)
 
   const perfectSplit = line.amount / split.filter(s => s.amount > 0).length
   const isEqually = split.every(({ amount }) => amount - perfectSplit <= 0.1 || amount === 0)
@@ -120,16 +127,13 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   ctx.body = render('project-line', { project, line, split, method })
 });
 router.get('/projects/:projectId/add-line/', async (ctx) => {
-  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.projectId])
-  project.participants = JSON.parse(project.participants)
-
+  const project = ctx.state.project
   const now = new Date().toISOString().split('.')[0]
-  const me = ctx.cookies.get('me')
   ctx.body = render('project-line', {
     project,
-    line: { created_at: now, currenct: project.currency, paid: me },
+    line: { created_at: now, currenct: project.currency, paid: ctx.state.me },
     split: project.participants.map(p => ({ participant: p, amount: 0 })),
-    me
+    me: ctx.state.me
   })
 });
 router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {
@@ -171,8 +175,6 @@ router.post('/projects/:projectId/lines', async (ctx) => {
     [participant, amount, projectId, line.id])
   )
   await Promise.all(promises)
-  const nextLine = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [ctx.params.projectId, line.id])
-
 
   ctx.status = 201
   return ctx.set('HX-Redirect', `/projects/${projectId}/`)
@@ -180,8 +182,8 @@ router.post('/projects/:projectId/lines', async (ctx) => {
 
 
 
-router.get('/projects/:id/balance', async (ctx) => {
-  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
+router.get('/projects/:projectId/balance', async (ctx) => {
+  const project = ctx.state.project
   let allSpent = await db.all(`
     SELECT s.participant, sum(s.amount) as total 
     FROM split s
@@ -194,7 +196,7 @@ router.get('/projects/:id/balance', async (ctx) => {
     WHERE project_id=$1 AND deleted_at IS NULL
     GROUP BY paid`, [ctx.params.id])
 
-  const balance = JSON.parse(project.participants).map(participant => {
+  const balance = project.participants.map(participant => {
     const spent = allSpent.find(s => s.participant === participant)?.total ?? 0
     const paid = allPaid.find(s => s.participant === participant)?.total ?? 0
     const diff = paid - spent
@@ -204,32 +206,37 @@ router.get('/projects/:id/balance', async (ctx) => {
   ctx.body = render('balance', { project, balance })
 });
 
-router.get('/projects/:id/settings/', async (ctx) => {
-  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  project.participants = JSON.parse(project.participants)
-  const me = ctx.cookies.get('me')
+router.get('/projects/:projectId/settings/', async (ctx) => {
+  const project = ctx.state.project
+  const me =ctx.state.me
   ctx.body = render('settings', { project, me })
 })
-router.delete('/projects/:id/participant/:name', async (ctx) => {
-  let project = await db.get('SELECT participants FROM projects WHERE id=$1', [ctx.params.id])
-  project.participants = JSON.parse(project.participants).filter(p => p !== ctx.params.name)
-  const nextParticipants = JSON.stringify(project.participants)
-  await db.run(`UPDATE projects SET participants=$1 WHERE id=$2`, [nextParticipants, ctx.params.id])
+router.delete('/projects/:projectId/participant/:name', async (ctx) => {
+  const project = ctx.state.project
+  project.participants = project.participants.filter(p => p !== ctx.params.name)
+  await db.run(
+    `UPDATE projects SET participants=$1 WHERE id=$2`,
+    [JSON.stringify(project.participants), project.id]
+  )
   ctx.status = 201
 })
-router.post('/projects/:id/participant', async (ctx) => {
+router.post('/projects/:projectId/participant', async (ctx) => {
   const name = ctx.header['hx-prompt'].trim()
-  let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
-  project.participants = JSON.parse(project.participants)
+  let project = ctx.state.project
+  project.participants = project.participants
     .filter(p => p !== name)
     .concat(name)
     .sort()
-  const nextParticipants = JSON.stringify(project.participants)
-  await db.run(`UPDATE projects SET participants=$1 WHERE id=$2`, [nextParticipants, ctx.params.id])
+  await db.run(
+    `UPDATE projects SET participants=$1 WHERE id=$2`,
+    [JSON.stringify(project.participants), project.id]
+  )
   ctx.body = render('settings', { project })
 })
-router.put('/projects/:id/me', async (ctx) => {
-  ctx.cookies.set('me', ctx.request.body.me)
+router.put('/projects/:projectId/me', async (ctx) => {
+  const projectId = ctx.params.projectId
+  const expires = new dayjs().add(1, 'year').toDate()
+  ctx.cookies.set(projectId+':me', ctx.request.body.me, { sameSite: 'strict', expires })
   ctx.status = 201
 })
 
