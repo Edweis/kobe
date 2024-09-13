@@ -52,7 +52,7 @@ export function shortDate(dateString) {
 }
 
 import fs from 'fs'
-export const sendStatic = (filePath) => async (ctx, next) => {
+export const sendStatic = (filePath) => async (ctx,  ) => {
   const stats = fs.statSync(filePath)
   if (filePath.endsWith('.css')) ctx.set('content-type', 'text/css')
   if (filePath.endsWith('.js')) ctx.set('content-type', 'application/javascript')

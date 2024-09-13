@@ -2467,14 +2467,6 @@ body > section {
   border-bottom-width: 0px;
 }
 
-.odd\:bg-primary\/10:nth-child(odd) {
-  background-color: var(--fallback-p,oklch(var(--p)/0.1));
-}
-
-.even\:bg-secondary\/10:nth-child(even) {
-  background-color: var(--fallback-s,oklch(var(--s)/0.1));
-}
-
 .hover\:bg-primary\/70:hover {
   background-color: var(--fallback-p,oklch(var(--p)/0.7));
 }

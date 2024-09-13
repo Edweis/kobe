@@ -37,7 +37,6 @@ files.forEach(file => {
 
 export function render(template, parameters) {
   let file = fs.readFileSync(root + '/views/' + template + '.hbs').toString()
-
   if (file == null) throw Error('File not found ' + template)
   return Handlebars.compile(file)(parameters);
 }

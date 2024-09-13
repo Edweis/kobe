@@ -1,3 +1,4 @@
+import Handlebars from 'handlebars';
 import Koa from 'koa';
 import Router from '@koa/router';
 import { render } from './lib/render.js';
@@ -81,6 +82,15 @@ router.get('/projects/:id', async (ctx) => {
   })
   ctx.body = render('project', { project, lines, q, nextPage: page + 1 })
 });
+router.get('/projects/:id/autocomplete', async ctx => {
+  const response = await db.all(
+    `SELECT DISTINCT TRIM(name) as name FROM lines WHERE project_id=? AND name LIKE ? LIMIT 10`,
+    [ctx.params.id, '%'+ctx.query.name+'%']
+  )
+  const options = response.map(r => r.name)
+  const template = Handlebars.compile(/*html*/`{{#each options}}<option value="{{this}}"></option>{{/each}}`)
+  ctx.body = template({options})
+})
 router.get('/projects/:id/manifest.json', async (ctx) => {
   const imgSizes = [48, 72, 96, 128, 144, 152, 192, 384, 512,]
   let project = await db.get('SELECT * FROM projects WHERE id=$1', [ctx.params.id])
@@ -138,6 +148,7 @@ router.post('/projects/:projectId/lines', async (ctx) => {
   const { projectId } = ctx.params
   const now = new Date().toISOString()
   line.id = line.id || randKey('lin_')
+  line.name = line.name.trim()
   line.created_at = line.created_at ?? now
   line.amount = Number(line.amount)
   line.split = (line.split || []).map(s => ({ ...s, amount: Number(s.amount ?? 0) }))
@@ -199,7 +210,6 @@ router.get('/projects/:id/settings/', async (ctx) => {
   const me = ctx.cookies.get('me')
   ctx.body = render('settings', { project, me })
 })
-
 router.delete('/projects/:id/participant/:name', async (ctx) => {
   let project = await db.get('SELECT participants FROM projects WHERE id=$1', [ctx.params.id])
   project.participants = JSON.parse(project.participants).filter(p => p !== ctx.params.name)
