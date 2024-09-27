@@ -19,8 +19,7 @@ app
     await next();
 
     const ifMatch = ctx.request.header['if-none-match'];
-    const etag = ctx.response.header['etag']
-    console.log({ifMatch, etag})
+    const etag = ctx.response.header['etag'] 
     if (etag && ifMatch === etag)
       ctx.status = 304
   })
@@ -189,19 +188,19 @@ router.get('/projects/:projectId/balance', async (ctx) => {
     FROM split s
     JOIN lines l ON l.id = s.line_id AND l.project_id = s.project_id
     WHERE s.project_id=$1 AND l.deleted_at IS NULL
-    GROUP BY s.participant`, [ctx.params.id])
+    GROUP BY s.participant`, [ctx.params.projectId])
   let allPaid = await db.all(`
     SELECT paid as participant, sum(amount) as total 
     FROM lines
     WHERE project_id=$1 AND deleted_at IS NULL
-    GROUP BY paid`, [ctx.params.id])
+    GROUP BY paid`, [ctx.params.projectId])
 
   const balance = project.participants.map(participant => {
     const spent = allSpent.find(s => s.participant === participant)?.total ?? 0
     const paid = allPaid.find(s => s.participant === participant)?.total ?? 0
     const diff = paid - spent
     return { participant, spent, paid, diff }
-  })
+  }) 
   // const max = spent.reduce((acc, val) => Math.max(acc, (val.total)), 0)
   ctx.body = render('balance', { project, balance })
 });
