@@ -24,6 +24,25 @@ body > section {
   @apply flex flex-col gap-4 container lg:max-w-3xl mx-auto
 }
 
+
+@keyframes animateBackground {
+  0% {
+    background-position: 50% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 50% 50%;
+  }
+}
+.htmx-request {
+  background: linear-gradient(45deg, #ff6b6b, #f9ed69, #00d2d3, #ff9ff3);
+  animation: animateBackground 2s ease infinite;
+  background-size: 150% 150%;
+  transition: transform 0.3s;
+}
+
 .label {
   @apply pb-0 pl-0
 }

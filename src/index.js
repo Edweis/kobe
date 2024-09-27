@@ -115,6 +115,8 @@ router.get('/projects/:projectId/manifest.json', async (ctx) => {
   }
 })
 router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
+
+await new Promise(res => setTimeout(res, 50000))
   let project = ctx.state.project
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [project.id, ctx.params.lineId])
   let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [project.id, ctx.params.lineId])
@@ -174,6 +176,7 @@ router.post('/projects/:projectId/lines', async (ctx) => {
     [participant, amount, projectId, line.id])
   )
   await Promise.all(promises)
+
 
   ctx.status = 201
   return ctx.set('HX-Redirect', `/projects/${projectId}/`)

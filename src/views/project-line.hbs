@@ -57,7 +57,7 @@ function computeAmount(participantChanged) {
     <nav>
       <a href="..">Back</a>
     </nav>
-    <form class="grid" hx-post="/projects/{{project.id}}/lines" hx-target-400="#error" x-data="{ method: '{{default method 'equally'}}', split: {{stringify split}} }">
+    <form class="grid" hx-indicator="#loading" hx-post="/projects/{{project.id}}/lines" hx-sync="this:drop" hx-target-400="#error" x-data="{ method: '{{default method 'equally'}}', split: {{stringify split}} }">
       <input type="hidden" name="project_id" value="{{project.id}}"/>
       <input type="hidden" name="id" value="{{line.id}}"/>
       <label class="form-control">
@@ -109,7 +109,9 @@ function computeAmount(participantChanged) {
         </template>
       </ul>
       <div class="my-8 flex justify-start gap-8 flex-row-reverse">
-        <button class="btn btn-primary">Save</button>
+        <button class="btn btn-primary loader" id="loading">
+          Save
+        </button>
         {{#if line.id}}
         <button type="button" class="btn btn-warning" hx-confirm="Are you ssssuuuure?" hx-delete="/projects/{{project.id}}/lines/{{line.id}}">Delete</button>
         {{/if}}
