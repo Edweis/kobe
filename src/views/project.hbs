@@ -1,7 +1,10 @@
-{{#> head title="Project"}}
- <link rel="preload" href="lines/{{lines.0.id}}" as="fetch" />
-{{/head}}
-<body hx-boost="true">
+<!DOCTYPE html>
+<html hx-boost="true">
+<head>
+  {{> common-head title="Project"}}
+  <link rel="preload" href="lines/{{lines.0.id}}" as="fetch" />
+</head>
+<body>
   <section>  
     <header>
       <h1>{{project.name}}</h1>
@@ -46,3 +49,4 @@
 
   </section>
 </body>
+</html>

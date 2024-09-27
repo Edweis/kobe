@@ -1,53 +1,56 @@
-{{#> head title="Project"}}
-<script>
-const round = (value, digits) => Number(value.toFixed(digits))
-const DECIMALS = 2
-function computeSplit() {
-  const checked = document.querySelectorAll('input[data-included][type=checkbox]:checked')
-  const total = Number(document.querySelector('input[name=amount]').value) ?? 0
-  const indivAmount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)
-  let remaining = round(total - indivAmount * checked.length, DECIMALS) // remaining cents lost in rounding
+<!DOCTYPE html>
+<html hx-boost="true">
+<head>
+  {{> common-head title="Project"}}
+  <script>
+  const round = (value, digits) => Number(value.toFixed(digits))
+  const DECIMALS = 2
+  function computeSplit() {
+    const checked = document.querySelectorAll('input[data-included][type=checkbox]:checked')
+    const total = Number(document.querySelector('input[name=amount]').value) ?? 0
+    const indivAmount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)
+    let remaining = round(total - indivAmount * checked.length, DECIMALS) // remaining cents lost in rounding
 
-  const nextSplit = []
-  document.querySelectorAll('input[data-included][type=checkbox]').forEach(el => {
-    const participant = el.attributes['data-included'].value
-    let amount
-    if (!el.checked) amount = 0
-    else if (remaining !== 0) { // first person gets the extra cents
-      amount = round(indivAmount + remaining, DECIMALS)
-      remaining = 0
-    }
-    else amount = indivAmount
-    nextSplit.push({ participant, amount })
-  })
-  return nextSplit
-}
-
-function computeAmount(participantChanged) {
-  const total = Number(document.querySelector('input[name=amount]').value) ?? 0
-  let allocated = total
-  const nextSplit = []
-
-  document.querySelectorAll('input[data-included][type=checkbox]').forEach(el => {
-    if (!el.checked) return nextSplit.push({ participant, amount: 0 })
-
-    const participant = el.attributes['data-included'].value;
-    const inputForm = el.parentNode.querySelector('input[data-included][type=text]')
-    const amount = Number(inputForm.value) || 0
-    allocated -= amount
-    nextSplit.push({ participant, amount, allocated })
-  })
-
-  if (allocated !== 0) {
-    const participantIndex = nextSplit.findIndex(s => s.participant === participantChanged);
-    const nextParticipant = (participantIndex + 1) % nextSplit.length
-    nextSplit[nextParticipant].amount += allocated
-    document.querySelector('input[data-included][type=text]').value += allocated
+    const nextSplit = []
+    document.querySelectorAll('input[data-included][type=checkbox]').forEach(el => {
+      const participant = el.attributes['data-included'].value
+      let amount
+      if (!el.checked) amount = 0
+      else if (remaining !== 0) { // first person gets the extra cents
+        amount = round(indivAmount + remaining, DECIMALS)
+        remaining = 0
+      }
+      else amount = indivAmount
+      nextSplit.push({ participant, amount })
+    })
+    return nextSplit
   }
-  return nextSplit
-}
-</script>
-{{/head}}
+
+  function computeAmount(participantChanged) {
+    const total = Number(document.querySelector('input[name=amount]').value) ?? 0
+    let allocated = total
+    const nextSplit = []
+
+    document.querySelectorAll('input[data-included][type=checkbox]').forEach(el => {
+      if (!el.checked) return nextSplit.push({ participant, amount: 0 })
+
+      const participant = el.attributes['data-included'].value;
+      const inputForm = el.parentNode.querySelector('input[data-included][type=text]')
+      const amount = Number(inputForm.value) || 0
+      allocated -= amount
+      nextSplit.push({ participant, amount, allocated })
+    })
+
+    if (allocated !== 0) {
+      const participantIndex = nextSplit.findIndex(s => s.participant === participantChanged);
+      const nextParticipant = (participantIndex + 1) % nextSplit.length
+      nextSplit[nextParticipant].amount += allocated
+      document.querySelector('input[data-included][type=text]').value += allocated
+    }
+    return nextSplit
+  }
+  </script>
+</head>
 <body hx-ext="response-targets">
   <section>  
     <header>
@@ -120,4 +123,4 @@ function computeAmount(participantChanged) {
     </form>
   </section>
 </body>
-
+</html>

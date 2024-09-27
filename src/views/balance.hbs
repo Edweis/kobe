@@ -1,16 +1,18 @@
-{{#> head title="Balance"}}
-<script>
-  function computeStyle(myAmount, maxAmmount){
-    const ratio = 100 * myAmount / maxAmmount
-    const width = Math.abs(ratio / 2)
-    const left = myAmount > 0 ? 50 : 50-width
-    console.log({left, width})
-    return `width: ${width}%; left: ${left}%`
-  }
-</script>
-{{/head}}
-
-<body hx-boost="true">
+<!DOCTYPE html>
+<html hx-boost="true">
+<head>
+  {{> common-head title="Balance"}}
+  <script>
+    function computeStyle(myAmount, maxAmmount){
+      const ratio = 100 * myAmount / maxAmmount
+      const width = Math.abs(ratio / 2)
+      const left = myAmount > 0 ? 50 : 50-width
+      console.log({left, width})
+      return `width: ${width}%; left: ${left}%`
+    }
+  </script>
+</head>
+<body>
   <section>  
     <header>
       <h1>Balance</h1>
@@ -29,3 +31,4 @@
     </article>
   </section>
 </body>
+</html>

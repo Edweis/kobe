@@ -1,0 +1,15 @@
+<meta charset="UTF-8"  />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{{default title "Kobe"}}</title>
+<link href="/assets/styles.css" rel="stylesheet">
+<script crossorigin="" src="/assets/htmx.js" defer=""></script>
+<script crossorigin="" src="/assets/alpine.js" defer=""></script>
+<link rel="shortcut icon" type="image/svg+xml" href="/assets/icon-512x512.png"/>
+<link rel="manifest" href="/projects/{{project.id}}/manifest.json" />
+<script>
+  logs=[]
+  window.onerror = function(msg, url, lineNo, columnNo, error) {  
+    if(msg!=='Script error.')
+      alert(JSON.stringify({msg, url, lineNo, columnNo, error}))
+  };  
+</script> 

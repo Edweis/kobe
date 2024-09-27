@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" />
-
-{{#> head title="List projects"}}
+<html hx-boost="true">
+<head>
+  {{> common-head title="List projects"}}
    <script>
     function addProject(event){
       const name = prompt('New project name');
@@ -10,9 +10,8 @@
       document.querySelector('form input[name=name]').value = name
     }
   </script>
-{{/head}}
-
-<body hx-boost="true">
+</head>
+<body>
   <section>
     <h1>Kobe</h1>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -37,3 +36,4 @@
     </button>
   </section>
 </body>
+</html>
