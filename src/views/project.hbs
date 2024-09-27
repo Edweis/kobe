@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html hx-boost="true">
+<html>
 <head>
   {{> common-head title="Project"}}
   <link rel="preload" href="lines/{{lines.0.id}}" as="fetch" />
 </head>
-<body>
+<body hx-ext="head-support" hx-boost="true">
   <section>  
     <header>
       <h1>{{project.name}}</h1>

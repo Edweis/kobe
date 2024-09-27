@@ -91,7 +91,11 @@ router.get('/projects/:projectId', async (ctx) => {
 });
 router.get('/projects/:projectId/autocomplete', async ctx => {
   const response = await db.all(
-    `SELECT DISTINCT TRIM(name) as name FROM lines WHERE project_id=? AND name LIKE ? LIMIT 10`,
+    `SELECT DISTINCT TRIM(name) as name FROM lines 
+    WHERE project_id=? 
+      AND name LIKE ? 
+      AND deleted_at IS NULL 
+    LIMIT 10`,
     [ctx.params.projectId, '%' + ctx.query.name + '%']
   )
   const options = response.map(r => r.name)
