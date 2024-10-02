@@ -3,8 +3,8 @@
 <head>
   {{> common-head title="Project"}}
   <script>
-  const round = (value, digits) => Number(value.toFixed(digits))
-  const DECIMALS = 2
+  let round = (value, digits) => Number(value.toFixed(digits))
+  let DECIMALS = 2
   function computeSplit() {
     const checked = document.querySelectorAll('input[data-included][type=checkbox]:checked')
     const total = Number(document.querySelector('input[name=amount]').value) ?? 0
