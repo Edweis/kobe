@@ -18,9 +18,8 @@ Handlebars.registerHelper('stringify', function (arg1) {
 Handlebars.registerHelper('empty', function (arg1) {
   return arg1.length === 0 
 });
-Handlebars.registerHelper('trim-time', function (arg1) {
-  console.log(arg1)
-  return arg1 && arg1.split('.')[0]
+Handlebars.registerHelper('trim-time', function (arg1) { 
+  return arg1 &&  new Date(arg1).toISOString().slice(0, 16)
 });
 Handlebars.registerHelper('currency', function (arg1, arg2) {
   return toCurrency( arg2, arg1)
