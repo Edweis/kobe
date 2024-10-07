@@ -6,7 +6,7 @@ import fs from 'fs/promises'
 import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import db from './lib/db.js';
-import { randKey, sendStatic, shortDate, toCurrency } from './lib/helpers.js';
+import { randKey, sendStatic, shortDate, toCurrency, formatEtag } from './lib/helpers.js';
 import dayjs from 'dayjs';
 const app = new Koa();
 const router = new Router();
@@ -19,7 +19,8 @@ app
     await next();
 
     const ifMatch = ctx.request.header['if-none-match'];
-    const etag = ctx.response.header['etag'] 
+    const etag = formatEtag(ctx.response.header['etag'])
+    if (etag) ctx.set('etag', etag) // updated formated etag
     if (etag && ifMatch === etag)
       ctx.status = 304
   })
@@ -29,7 +30,7 @@ router.param('projectId', async (projectId, ctx, next) => {
   if (project == null) return ctx.redirect('/');
   project.participants = JSON.parse(project.participants)
   ctx.state.project = project;
-  ctx.state.me = ctx.cookies.get(projectId+':me') ?? project.participants[0]
+  ctx.state.me = ctx.cookies.get(projectId + ':me') ?? project.participants[0]
   ctx.state.me = ctx.state.me && ctx.state.me.replace('Ã§', 'ç')
   return next()
 })
@@ -60,7 +61,7 @@ router.get('/projects/:projectId', async (ctx) => {
 
   // Cache by last modified date
   let latest = await db.get('SELECT updated_at FROM lines WHERE project_id=$1 ORDER BY updated_at DESC LIMIT 1', [project.id])
-  if(latest) ctx.set('etag', latest.updated_at+'#'+ctx.state.me)
+  if (latest) ctx.set('etag', JSON.stringify(latest.updated_at + '#' + ctx.state.me))
 
   const me = ctx.state.me
   let lines = await db.all(`
@@ -91,10 +92,10 @@ router.get('/projects/:projectId', async (ctx) => {
 });
 router.get('/projects/:projectId/autocomplete', async ctx => {
   const response = await db.all(
-    `SELECT DISTINCT TRIM(name) as name FROM lines 
-    WHERE project_id=? 
-      AND name LIKE ? 
-      AND deleted_at IS NULL 
+    `SELECT DISTINCT TRIM(name) as name FROM lines
+    WHERE project_id=?
+      AND name LIKE ?
+      AND deleted_at IS NULL
     LIMIT 10`,
     [ctx.params.projectId, '%' + ctx.query.name + '%']
   )
@@ -122,7 +123,8 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let project = ctx.state.project
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [project.id, ctx.params.lineId])
   let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [project.id, ctx.params.lineId])
-  ctx.set('etag', line.updated_at+'#'+ctx.state.me)
+  ctx.set('etag', JSON.stringify(line.updated_at + '#' + ctx.state.me))
+  console.log(ctx.response.header)
 
   const perfectSplit = line.amount / split.filter(s => s.amount > 0).length
   const isEqually = split.every(({ amount }) => amount - perfectSplit <= 0.1 || amount === 0)
@@ -143,8 +145,8 @@ router.delete('/projects/:projectId/lines/:lineId', async (ctx) => {
   const { projectId, lineId } = ctx.params
   const now = new Date().toISOString()
   await db.get(`
-    UPDATE lines 
-    SET deleted_at=$1, updated_at=$1 
+    UPDATE lines
+    SET deleted_at=$1, updated_at=$1
     WHERE project_id=$2 AND id=$3`,
     [now, projectId, lineId])
   ctx.status = 204
@@ -167,13 +169,13 @@ router.post('/projects/:projectId/lines', async (ctx) => {
   await db.run(`
     INSERT INTO lines (id, project_id, name, amount, paid, updated_at, created_at)
     VALUES            ($1,         $2,   $3,     $4,   $5,         $6,         $7)
-    ON CONFLICT(id, project_id) DO UPDATE SET 
+    ON CONFLICT(id, project_id) DO UPDATE SET
       name=$3, amount=$4, paid=$5, updated_at=$6, created_at=$7`,
     [line.id, projectId, line.name, line.amount, line.paid, now, line.created_at])
   const promises = line.split.map(async ({ participant, amount }) => db.run(`
       INSERT INTO split (participant, amount, project_id, line_id)
       VALUES            (         $1,     $2,          $3,     $4)
-      ON CONFLICT(participant, line_id, project_id) DO UPDATE SET 
+      ON CONFLICT(participant, line_id, project_id) DO UPDATE SET
         amount=$2`,
     [participant, amount, projectId, line.id])
   )
@@ -189,13 +191,13 @@ router.post('/projects/:projectId/lines', async (ctx) => {
 router.get('/projects/:projectId/balance', async (ctx) => {
   const project = ctx.state.project
   let allSpent = await db.all(`
-    SELECT s.participant, sum(s.amount) as total 
+    SELECT s.participant, sum(s.amount) as total
     FROM split s
     JOIN lines l ON l.id = s.line_id AND l.project_id = s.project_id
     WHERE s.project_id=$1 AND l.deleted_at IS NULL
     GROUP BY s.participant`, [ctx.params.projectId])
   let allPaid = await db.all(`
-    SELECT paid as participant, sum(amount) as total 
+    SELECT paid as participant, sum(amount) as total
     FROM lines
     WHERE project_id=$1 AND deleted_at IS NULL
     GROUP BY paid`, [ctx.params.projectId])
@@ -205,14 +207,14 @@ router.get('/projects/:projectId/balance', async (ctx) => {
     const paid = allPaid.find(s => s.participant === participant)?.total ?? 0
     const diff = paid - spent
     return { participant, spent, paid, diff }
-  }) 
+  })
   // const max = spent.reduce((acc, val) => Math.max(acc, (val.total)), 0)
   ctx.body = render('balance', { project, balance })
 });
 
 router.get('/projects/:projectId/settings/', async (ctx) => {
   const project = ctx.state.project
-  const me =ctx.state.me
+  const me = ctx.state.me
   ctx.body = render('settings', { project, me })
 })
 router.delete('/projects/:projectId/participant/:name', async (ctx) => {
@@ -240,7 +242,7 @@ router.post('/projects/:projectId/participant', async (ctx) => {
 router.put('/projects/:projectId/me', async (ctx) => {
   const projectId = ctx.params.projectId
   const expires = new dayjs().add(1, 'year').toDate()
-  ctx.cookies.set(projectId+':me', ctx.request.body.me, { sameSite: 'strict', expires })
+  ctx.cookies.set(projectId + ':me', ctx.request.body.me, { sameSite: 'strict', expires })
   ctx.status = 201
 })
 

@@ -5,7 +5,7 @@
   <link rel="preload" href="lines/{{lines.0.id}}" as="fetch" />
 </head>
 <body hx-ext="head-support" hx-boost="true">
-  <section>  
+  <section>
     <header>
       <h1>{{project.name}}</h1>
       <div class="flex justify-between">
@@ -20,7 +20,7 @@
 
     <form>
       <input type="search" class="input input-bordered w-full" name="q" placeholder="Search ..." autocomplete="off" autocapitalize="off" autocorrect="off" value="{{q}}"/>
-      
+
       <a href="add-line/" class="btn btn-primary my-2 h-16 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -33,7 +33,7 @@
         <article class="grid">
           <div class="flex justify-between">
             <h3 class="text-primary font-semibold text-xl">{{this.name}}</h3>
-            <span class="{{#if (gt this.myImpact 0) }}text-primary{{else}}text-red-400{{/if}}">{{this.myImpactStr}}</span>
+            <span class="whitespace-nowrap {{#if (gt this.myImpact 0) }}text-primary{{else}}text-red-400{{/if}}">{{this.myImpactStr}}</span>
           </div>
           <div class="flex justify-between text-sm">
             <p>{{paidBy}}</p>

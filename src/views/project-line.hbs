@@ -52,7 +52,7 @@
   </script>
 </head>
 <body hx-ext="response-targets">
-  <section>  
+  <section>
     <header>
       <h1>{{default line.name 'New spending'}}</h1>
       <span>{{project.name}}</span>
@@ -72,7 +72,7 @@
         <span class="label label-text">Amount</span>
         <div class="flex gap-2">
           <input value="{{line.amount}}" name="amount" class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" required="" step="2" @input="split = computeSplit()" autocomplete="off"  />
-          <select name="currency" class="select select-bordered" value="{{line.currency}}"> 
+          <select name="currency" class="select select-bordered" value="{{line.currency}}">
             <option>EUR</option>
             <option>SGD</option>
             <option>USD</option>
