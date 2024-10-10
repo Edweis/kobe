@@ -59,10 +59,8 @@ router.get('/projects/:projectId', async (ctx) => {
   const page = Number(ctx.query.page) || 1
   const project = ctx.state.project
 
-  // Cache by last modified date
-  let latest = await db.get('SELECT updated_at FROM lines WHERE project_id=$1 ORDER BY updated_at DESC LIMIT 1', [project.id])
-  if (latest) ctx.set('etag', JSON.stringify(latest.updated_at + '#' + ctx.state.me))
-
+  
+  
   const me = ctx.state.me
   let lines = await db.all(`
     SELECT l.*, s.amount as myAmount FROM lines l
@@ -70,13 +68,17 @@ router.get('/projects/:projectId', async (ctx) => {
     WHERE l.project_id=$projectId AND deleted_at IS NULL AND (l.name LIKE $q OR $q is NULL)
     ORDER BY created_at DESC
     LIMIT $limit OFFSET $offset
-  `, {
-    $projectId: project.id,
-    $me: me,
-    $q: q && `%${q}%`,
-    $limit: SIZE,
-    $offset: (page - 1) * SIZE
-  });
+    `, {
+      $projectId: project.id,
+      $me: me,
+      $q: q && `%${q}%`,
+      $limit: SIZE,
+      $offset: (page - 1) * SIZE
+    });
+
+  // Cache by last modified date
+  const latest = lines.reduce((acc, val)=> acc < val.updated_at ? val.updated_at : acc, '')
+  if (latest) ctx.set('etag', JSON.stringify(latest.updated_at+'#'+q+'#'+page+'#'+ctx.state.me))
 
   lines = lines.map(line => {
     const myImpact = (line.paid === me) ? line.amount - line.myAmount : -line.myAmount
