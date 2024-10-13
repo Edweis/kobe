@@ -1,3 +1,4 @@
+import assert from 'node:assert';
 export function randKey(prefix, length = 8) {
   const keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let res = '';
@@ -8,33 +9,31 @@ export function randKey(prefix, length = 8) {
   return prefix + res;
 }
 
-export function computeBalance(expenses) {
-  console.log(expenses)
-  let highest = { amount: -Infinity }
-  let lowest = { amount: Infinity }
-  expenses.forEach((amount, name) => {
-    if (amount == 0) return
-    if (highest.amount < amount) highest = { name, amount }
-    if (amount < lowest.amount) lowest = { name, amount }
+const round = (number) => Math.round(number * 1000) / 1000
+export function computeBalance(balanceMap) {
+  // validate balance
+  let total = 0;
+  balanceMap.forEach(value => total += value)
+  assert(total < 0.01, 'Balance is not balanced: ' + total)
+
+  let highest = { diff: -Infinity }
+  let lowest = { diff: Infinity }
+  balanceMap.forEach((diff, name) => {
+    if (diff == 0) return // No expense for the participant.
+    if (highest.diff < diff) highest = { name, diff }
+    if (diff < lowest.diff) lowest = { name, diff }
   })
+
   if (highest.name === lowest.name) return []
 
-  expenses.delete(lowest.name);
-  expenses.set(highest.name, highest.amount + lowest.amount)
-  const tx = { from: lowest.name, to: highest.name, amount: -lowest.amount }
-  return [tx, ...computeBalance(expenses)]
+  const amount = Math.min(Math.abs(highest.diff), Math.abs(lowest.diff))
+  balanceMap.set(lowest.name, round(lowest.diff + amount))
+  balanceMap.set(highest.name, round(highest.diff - amount))
+  const tx = { from: lowest.name, to: highest.name, amount: round(amount) }
+  return [tx, ...computeBalance(balanceMap)]
 }
 
-export function computeExpenses(lines) {
-  const expenses = new Map()
-  lines
-    .flatMap(l => JSON.parse(l.split).map(ll => ({ ...ll, paid: l.paid })))
-    .forEach(({ participant, amount, paid }) => {
-      expenses.set(paid, (expenses.get(paid) || 0) + Number(amount))
-      expenses.set(participant, (expenses.get(participant) || 0) - Number(amount))
-    });
-  return expenses
-}
+
 
 const CURR_MAX_DEC = { "IDR": 0, "BIF": 0, "CLP": 0, "DJF": 0, "GNF": 0, "ISK": 0, "JPY": 0, "KMF": 0, "KRW": 0, "PYG": 0, "RWF": 0, "UGX": 0, "UYI": 0, "VND": 0, "VUV": 0, "XAF": 0, "XOF": 0, "XPF": 0, "BHD": 3, "IQD": 3, "JOD": 3, "KWD": 3, "LYD": 3, "OMR": 3, "TND": 3, "CLF": 4, "UYW": 4 }
 export function toCurrency(curr, amount) {

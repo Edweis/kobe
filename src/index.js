@@ -2,11 +2,10 @@ import Handlebars from 'handlebars';
 import Koa from 'koa';
 import Router from '@koa/router';
 import { render } from './lib/render.js';
-import fs from 'fs/promises'
 import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import db from './lib/db.js';
-import { randKey, sendStatic, shortDate, toCurrency, formatEtag } from './lib/helpers.js';
+import { randKey, sendStatic, shortDate, toCurrency, formatEtag, computeBalance } from './lib/helpers.js';
 import dayjs from 'dayjs';
 const app = new Koa();
 const router = new Router();
@@ -85,8 +84,9 @@ router.get('/projects/:projectId', async (ctx) => {
   });
 
   // Cache by last modified date
-  const latest = lines.reduce((acc, val) => acc < val.updated_at ? val.updated_at : acc, '')
-  if (latest) ctx.set('etag', JSON.stringify(latest.updated_at + '#' + q + '#' + page + '#' + ctx.state.me))
+  const { latest } = await db.get(`SELECT MAX(updated_at) as latest FROM lines WHERE project_id = ?`, [project.id])
+  console.log({ latest })
+  if (latest) ctx.set('etag', JSON.stringify(latest + '#' + q + '#' + page + '#' + ctx.state.me))
 
   lines = lines.map(line => {
     const myImpact = (line.paid === me) ? line.amount - line.myAmount : -line.myAmount
@@ -193,6 +193,9 @@ router.post('/projects/:projectId/lines', async (ctx) => {
 
 
   ctx.status = 201
+  console.log(ctx.header)
+  if (ctx.header['hx-current-url'].includes('balance'))
+    return ctx.set('HX-Redirect', `/projects/${projectId}/balance/`)
   return ctx.set('HX-Redirect', `/projects/${projectId}/`)
 })
 
@@ -218,8 +221,10 @@ router.get('/projects/:projectId/balance', async (ctx) => {
     const diff = paid - spent
     return { participant, spent, paid, diff }
   })
-  // const max = spent.reduce((acc, val) => Math.max(acc, (val.total)), 0)
-  ctx.body = render('balance', { project, balance })
+
+  const balanceMap = new Map(balance.map(({ participant, diff }) => [participant, diff]))
+  const moves = computeBalance(balanceMap);
+  ctx.body = render('balance', { project, balance, moves })
 });
 
 router.get('/projects/:projectId/settings/', async (ctx) => {

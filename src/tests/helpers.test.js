@@ -1,51 +1,25 @@
 import { describe, it } from 'node:test'
 import assert from "node:assert"
-import { computeBalance, computeExpenses } from '../lib/helpers.js'
+import { computeBalance, } from '../lib/helpers.js'
 
 const cases = [
-  [ [], [] ],
-  [ [{ from: 'a', to: ['a'], amount: 10 }], [] ],
+  [[], []],
   [
-    [{ from: 'a', to: ['b'], amount: 10 }],
+    new Map([['a', 10], ['b', -10]]),
     [{ from: 'b', to: 'a', amount: 10 }]
   ],
   [
-    [{ from: 'a', to: ['a', 'b'], amount: 10 }],
-    [{ from: 'b', to: 'a', amount: 5 }]
+    new Map([['a', 30], ['b', -10], ['c', -20]]),
+    [{ from: 'c', to: 'a', amount: 20 }, { from: 'b', to: 'a', amount: 10 }]
   ],
   [
-    [
-      { from: 'a', to: ['a', 'b'], amount: 100 },
-      { from: 'b', to: ['a'], amount: 10 }
-    ],
-    [{ from: 'b', to: 'a', amount: 40 }]
-  ],
-  [
-    [
-      { from: 'a', to: ['a', 'b'], amount: 100 },
-      { from: 'b', to: ['a'], amount: 50 }
-    ],
-    []
-  ],
-  [
-    [
-      { from: 'a', to: ['b'], amount: 10 },
-      { from: 'b', to: ['c'], amount: 10 },
-      { from: 'c', to: ['a'], amount: 10 }
-    ],
-    []
+    new Map([['a', 70], ['b', 30], ['c', -100]]),
+    [{ from: 'c', to: 'a', amount: 70 }, { from: 'c', to: 'b', amount: 30 }]
   ]
-].map(([input, output]) => {
-  const lines = input.map(tx => {
-    const amount = tx.amount / tx.to.length
-    return { paid: tx.from, split: JSON.stringify(tx.to.map(p => ({ participant: p, amount, }))) }
-  })
-  const expenses = computeExpenses(lines)
-  return [expenses, output]
-})
+]
 describe('computeBalance', () => {
   cases.forEach(([input, output], index) => {
-    it('should work for case '+index, () => {
+    it('should work for case ' + index, () => {
       assert.deepEqual(computeBalance(input), output)
     })
   })

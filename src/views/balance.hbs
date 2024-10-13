@@ -13,22 +13,50 @@
   </script>
 </head>
 <body hx-ext="head-support" hx-boost="true">
-  <section>  
+  <section>
     <header>
       <h1>Balance</h1>
       <span>{{project.name}}</span>
     </header>
     <nav>
-      <a href=".." >Back</a>  
+      <a href=".." >Back</a>
     </nav>
-    <article class="grid mt-4 border rounded-xl px-4 input-bordered">
-      {{#each balance}}
-      <div  class="text-xl justify-between flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer">
-          <span>{{participant}}</span>
-          <span class="{{#if (gt diff 0)}}text-success{{else}}text-warning{{/if}}">{{currency diff ../project.currency }}</span>
-      </div>
-      {{/each}}
-    </article>
+    <div>
+        <h3>Balance summary</h3>
+        <article class="grid mt-4 border rounded-xl px-4 input-bordered">
+        {{#each balance}}
+        <div  class="text-xl justify-between flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer">
+            <span>{{participant}}</span>
+            <span class="{{#if (gt diff 0)}}text-success{{else}}text-warning{{/if}}">{{currency diff ../project.currency }}</span>
+        </div>
+        {{/each}}
+        </article>
+
+        <h3 class="mt-8">Suggested transfers</h3>
+        <article class="grid mt-4 border rounded-xl px-4 input-bordered">
+        {{#each moves}}
+        <div class="text-xl flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer">
+            <span>
+                {{from}}
+                <span class="text-base">owes</span>
+                {{to}}
+            </span>
+            <form class="flex items-center ml-auto gap-2"  hx-post="/projects/{{../project.id}}/lines" hx-confirm="Did {{from}} paid {{currency amount ../project.currency }} to {{to}}?" >
+                {{currency amount ../project.currency }}
+                <input type="hidden" name="amount" value="{{amount}}"/>
+                <input type="hidden" name="paid" value="{{from}}"/>
+                <input type="hidden" name="name" value="Reimbursement {{from}} > {{to}}"/>
+                <input type="hidden" name="split[0][amount]" value="{{amount}}"/>
+                <input type="hidden" name="split[0][participant]" value="{{to}}"/>
+                <input type="hidden" name="currency" value="{{../project.currency}}"/>
+                <button  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"> <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /> </svg>
+                </button>
+            </form>
+        </div>
+        {{/each}}
+        </article>
+    </div>
   </section>
 </body>
 </html>
