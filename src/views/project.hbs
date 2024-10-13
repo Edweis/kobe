@@ -16,6 +16,7 @@
     <nav>
       <a href="balance/">Balance</a>
       <a href="settings/">Settings</a>
+      <p class="opacity-50 text-right italic pt-1">Viewing as {{me}}</p>
     </nav>
 
     <form action="/projects/{{project.id}}/">
@@ -33,11 +34,11 @@
         <article class="grid">
           <div class="flex justify-between">
             <h3 class="text-primary font-semibold text-xl">{{this.name}}</h3>
-            <span class="whitespace-nowrap {{#if (gt this.myImpact 0) }}text-primary{{else}}text-red-400{{/if}}">{{this.myImpactStr}}</span>
+            <span class="whitespace-nowrap {{#if (gt this.myImpact 0) }}text-primary{{else}}text-red-400{{/if}} {{#if (eq this.myImpact 0) }}text-neutral {{/if}}">{{this.myImpactStr}}</span>
           </div>
           <div class="flex justify-between text-sm">
             <p>{{paidBy}}</p>
-            <p>{{this.created_at}}</p>
+            <p>{{formatTime this.created_at "D MMM"}}</p>
           </div>
         </article>
       </a>

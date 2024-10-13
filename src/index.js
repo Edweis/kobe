@@ -5,7 +5,7 @@ import { render } from './lib/render.js';
 import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import db from './lib/db.js';
-import { randKey, sendStatic, shortDate, toCurrency, formatEtag, computeBalance } from './lib/helpers.js';
+import { randKey, sendStatic, toCurrency, formatEtag, computeBalance } from './lib/helpers.js';
 import dayjs from 'dayjs';
 const app = new Koa();
 const router = new Router();
@@ -91,13 +91,13 @@ router.get('/projects/:projectId', async (ctx) => {
     const myImpact = (line.paid === me) ? line.amount - line.myAmount : -line.myAmount
     return {
       ...line,
-      created_at: shortDate(line.created_at),
+      created_at: line.created_at,
       paidBy: (line.paid === me ? 'You' : line.paid) + ' paid ' + toCurrency(line.currency, line.amount),
       myImpactStr: toCurrency(line.currency, myImpact),
       myImpact
     }
   })
-  ctx.body = render('project', { project: ctx.state.project, lines, q, nextPage: page + 1 })
+  ctx.body = render('project', { project: ctx.state.project, lines, q, nextPage: page + 1, me })
 });
 router.get('/projects/:projectId/autocomplete', async ctx => {
   const response = await db.all(

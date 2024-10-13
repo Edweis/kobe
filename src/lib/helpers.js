@@ -42,13 +42,7 @@ export function toCurrency(curr, amount) {
     .NumberFormat(undefined, { style: 'currency', currency: curr || 'EUR', minimumFractionDigits: digits, maximumFractionDigits: digits })
     .format(amount)
 }
-export function shortDate(dateString) {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  return `${day} ${month}`;
-}
+
 
 import fs from 'fs'
 export const sendStatic = (filePath) => async (ctx,) => {
