@@ -13,7 +13,7 @@
   </script>
 </head>
 <body hx-ext="head-support" hx-boost="true">
-  <section>
+  <section class="pb-8">
     <header>
       <h1>Balance</h1>
       <span>{{project.name}}</span>
@@ -32,7 +32,10 @@
         {{/each}}
         </article>
 
-        <h3 class="mt-8">Suggested transfers</h3>
+        <h3 class="mt-8 flex justify-between">
+            Suggested transfers
+            <span class="text-base italic opacity-50">{{formatTime latest "ddd MMM D, HH:mm"}}</span>
+        </h3>
         <article class="grid mt-4 border rounded-xl px-4 input-bordered">
         {{#each moves}}
         <div class="text-xl flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer">

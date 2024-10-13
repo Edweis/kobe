@@ -85,7 +85,6 @@ router.get('/projects/:projectId', async (ctx) => {
 
   // Cache by last modified date
   const { latest } = await db.get(`SELECT MAX(updated_at) as latest FROM lines WHERE project_id = ?`, [project.id])
-  console.log({ latest })
   if (latest) ctx.set('etag', JSON.stringify(latest + '#' + q + '#' + page + '#' + ctx.state.me))
 
   lines = lines.map(line => {
@@ -214,6 +213,7 @@ router.get('/projects/:projectId/balance', async (ctx) => {
     FROM lines
     WHERE project_id=$1 AND deleted_at IS NULL
     GROUP BY paid`, [ctx.params.projectId])
+  const { latest } = await db.get(`SELECT MAX(updated_at) as latest FROM lines WHERE project_id = ?`, [project.id])
 
   const balance = project.participants.map(participant => {
     const spent = allSpent.find(s => s.participant === participant)?.total ?? 0
@@ -224,7 +224,7 @@ router.get('/projects/:projectId/balance', async (ctx) => {
 
   const balanceMap = new Map(balance.map(({ participant, diff }) => [participant, diff]))
   const moves = computeBalance(balanceMap);
-  ctx.body = render('balance', { project, balance, moves })
+  ctx.body = render('balance', { project, balance, moves, latest })
 });
 
 router.get('/projects/:projectId/settings/', async (ctx) => {
