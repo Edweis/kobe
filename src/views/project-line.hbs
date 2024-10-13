@@ -3,11 +3,15 @@
 <head>
   {{> common-head title="Project"}}
   <script>
+  function getAmount(){
+    const inputValue = document.querySelector('input[name=amount]').value ?? '0'
+    return Number(inputValue.replace(/,/g, '.')) ?? 0
+  }
   function computeSplit() {
     const  round = (value, digits) => Number(value.toFixed(digits))
     const  DECIMALS = 2
     const checked = document.querySelectorAll('input[data-included][type=checkbox]:checked')
-    const total = Number(document.querySelector('input[name=amount]').value) ?? 0
+    const total = getAmount()
     const indivAmount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)
     let remaining = round(total - indivAmount * checked.length, DECIMALS) // remaining cents lost in rounding
 
@@ -27,7 +31,7 @@
   }
 
   function computeAmount(participantChanged) {
-    const total = Number(document.querySelector('input[name=amount]').value) ?? 0
+    const total = getAmount()
     let allocated = total
     const nextSplit = []
 
@@ -71,7 +75,7 @@
       <label class="form-control">
         <span class="label label-text">Amount</span>
         <div class="flex gap-2">
-          <input value="{{line.amount}}" name="amount" class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-]*" type="text" required="" step="2" @input="split = computeSplit()" autocomplete="off"  />
+          <input value="{{line.amount}}" name="amount" class="input input-bordered grow" inputmode="decimal" pattern="[0-9.\-,]*" type="text" required="" step="2" @input="split = computeSplit()" autocomplete="off"  />
           <select name="currency" class="select select-bordered" value="{{line.currency}}">
             <option>EUR</option>
             <option>SGD</option>

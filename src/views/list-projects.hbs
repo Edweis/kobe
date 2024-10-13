@@ -2,17 +2,9 @@
 <html>
 <head>
   {{> common-head title="List projects"}}
-   <script>
-    function addProject(event){
-      const name = prompt('New project name');
-      if(name==null) return
-      document.querySelector('form input[name=name]').value = name
-      document.querySelector('form input[name=name]').value = name
-    }
-  </script>
 </head>
 <body hx-ext="head-support" hx-boost="true">
-  <section>
+  <section class="h-screen">
     <h1>Kobe</h1>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {{#each projects}}
@@ -26,6 +18,14 @@
         </a>
       {{/each}}
     </div>
+    <div class="mt-auto grid grid-cols-4 mb-4">
+    <h3 class="text-lg col-span-full font-semibold">Archived projects</h3>
+    {{#each projects}}
+      <a href="/projects/{{this.id}}/" class="link" >
+        {{this.name}}
+      </a>
+    {{/each}}
+    <div/>
     <button
       class="fixed right-4 bottom-4 btn btn-lg btn-primary btn-circle"
       hx-prompt="New project name"

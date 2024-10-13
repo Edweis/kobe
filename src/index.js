@@ -37,7 +37,7 @@ router.param('projectId', async (projectId, ctx, next) => {
 
 // Endpoints
 router.get('/', async (ctx) => {
-  let projects = await db.all('SELECT id, name FROM projects')
+  let projects = await db.all('SELECT id, name FROM projects WHERE deleted_at IS NULL ORDER BY name')
   ctx.body = render('list-projects', { projects })
 });
 
@@ -52,6 +52,14 @@ router.post('/projects', async ctx => {
   )
   return ctx.redirect('/projects/' + id)
 })
+router.delete('/projects/:projectId', async ctx => {
+  const project = ctx.state.project
+  await db.run(
+    `UPDATE projects SET deleted_at=$1 WHERE id=$2`,
+    [new Date().toISOString(), project.id]
+  )
+  ctx.set('HX-Redirect', '/')
+})
 const SIZE = 20;
 router.get('/projects/:projectId', async (ctx) => {
   if (!ctx.path.endsWith('/')) return ctx.redirect(ctx.path + '/')
@@ -59,8 +67,8 @@ router.get('/projects/:projectId', async (ctx) => {
   const page = Number(ctx.query.page) || 1
   const project = ctx.state.project
 
-  
-  
+
+
   const me = ctx.state.me
   let lines = await db.all(`
     SELECT l.*, s.amount as myAmount FROM lines l
@@ -69,16 +77,16 @@ router.get('/projects/:projectId', async (ctx) => {
     ORDER BY created_at DESC
     LIMIT $limit OFFSET $offset
     `, {
-      $projectId: project.id,
-      $me: me,
-      $q: q && `%${q}%`,
-      $limit: SIZE,
-      $offset: (page - 1) * SIZE
-    });
+    $projectId: project.id,
+    $me: me,
+    $q: q && `%${q}%`,
+    $limit: SIZE,
+    $offset: (page - 1) * SIZE
+  });
 
   // Cache by last modified date
-  const latest = lines.reduce((acc, val)=> acc < val.updated_at ? val.updated_at : acc, '')
-  if (latest) ctx.set('etag', JSON.stringify(latest.updated_at+'#'+q+'#'+page+'#'+ctx.state.me))
+  const latest = lines.reduce((acc, val) => acc < val.updated_at ? val.updated_at : acc, '')
+  if (latest) ctx.set('etag', JSON.stringify(latest.updated_at + '#' + q + '#' + page + '#' + ctx.state.me))
 
   lines = lines.map(line => {
     const myImpact = (line.paid === me) ? line.amount - line.myAmount : -line.myAmount
@@ -161,7 +169,7 @@ router.post('/projects/:projectId/lines', async (ctx) => {
   line.id = line.id || randKey('lin_')
   line.name = line.name.trim()
   line.created_at = line.created_at ?? now
-  line.amount = Number(line.amount)
+  line.amount = Number(line.amount.replace(/,/g, '.'))
   line.split = (line.split || []).map(s => ({ ...s, amount: Number(s.amount ?? 0) }))
 
   const totalSplit = line.split.reduce((acc, val) => acc + val.amount, 0)
