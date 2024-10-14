@@ -38,13 +38,13 @@
         </h3>
         <article class="grid mt-4 border rounded-xl px-4 input-bordered">
         {{#each moves}}
-        <div class="text-xl flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer">
+        <form hx-post="/projects/{{../project.id}}/lines" hx-confirm="Did {{from}} paid {{currency amount ../project.currency }} to {{to}}?" class="group text-xl flex items-center gap-4 py-4 border-b last:border-b-0 input-bordered cursor-pointer" hx-trigger="click">
             <span>
                 {{from}}
                 <span class="text-base">owes</span>
                 {{to}}
             </span>
-            <form class="flex items-center ml-auto gap-2"  hx-post="/projects/{{../project.id}}/lines" hx-confirm="Did {{from}} paid {{currency amount ../project.currency }} to {{to}}?" >
+            <div class="flex items-center ml-auto gap-2"   >
                 {{currency amount ../project.currency }}
                 <input type="hidden" name="amount" value="{{amount}}"/>
                 <input type="hidden" name="paid" value="{{from}}"/>
@@ -52,11 +52,11 @@
                 <input type="hidden" name="split[0][amount]" value="{{amount}}"/>
                 <input type="hidden" name="split[0][participant]" value="{{to}}"/>
                 <input type="hidden" name="currency" value="{{../project.currency}}"/>
-                <button  >
+                <button class="group-hover:bg-success rounded-full group-hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"> <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /> </svg>
                 </button>
-            </form>
-        </div>
+            </div>
+        </form>
         {{/each}}
         </article>
     </div>
