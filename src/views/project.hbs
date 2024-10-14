@@ -19,18 +19,29 @@
       <p class="opacity-50 text-right italic pt-1">As {{me}}</p>
     </nav>
 
-    <form action="/projects/{{project.id}}/">
-      <input type="search" class="input input-bordered w-full" name="q" placeholder="Search ..." autocomplete="off" autocapitalize="off" autocorrect="off" value="{{q}}"/>
+    <div>
+      <input hx-push-url="true" hx-get="/projects/{{project.id}}/" hx-target="#list-spendings" hx-select="#list-spendings" hx-trigger="change, keyup delay:400ms changed" type="search" class="input input-bordered w-full" name="q" placeholder="Search ..." autocomplete="off" autocapitalize="off" autocorrect="off" value="{{q}}"/>
 
       <a href="add-line/" class="btn btn-primary my-2 h-16 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
       </a>
-    </form>
+    </div>
     <div id="list-spendings" class="flex flex-col gap-2 pb-12 h-full overflow-y-scroll px-0">
       {{#each lines}}
-      <a href="lines/{{this.id}}" class="{{#if (gt this.myImpact 0) }}bg-secondary/10{{else}}bg-primary/10{{/if}} py-2 px-4" {{#if @last}}hx-get="?page={{../nextPage}}&q={{../q}}" hx-trigger="revealed" hx-swap="afterend" hx-select="#list-spendings a"{{/if}}>
+      <a 
+        href="lines/{{this.id}}" 
+        class="{{#if (gt this.myImpact 0) }}bg-secondary/10{{else}}bg-primary/10{{/if}} py-2 px-4" 
+        {{#if @last}}
+        {{#unless (empty lines)}}
+        hx-get="?page={{../nextPage}}&q={{../q}}" 
+        hx-trigger="revealed" 
+        hx-swap="afterend" 
+        hx-select="#list-spendings a"
+        {{/unless}}
+        {{/if}}
+      >
         <article class="grid">
           <div class="flex justify-between">
             <h3 class="text-primary font-semibold text-xl">{{this.name}}</h3>

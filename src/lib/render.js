@@ -17,7 +17,7 @@ Handlebars.registerHelper('stringify', function (arg1) {
   return JSON.stringify(arg1)
 });
 Handlebars.registerHelper('empty', function (arg1) {
-  return arg1.length === 0
+  return (arg1||[]).length === 0
 });
 Handlebars.registerHelper('trim-time', function (arg1) {
   return arg1 && new Date(arg1).toISOString().slice(0, 16)
