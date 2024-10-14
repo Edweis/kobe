@@ -13,7 +13,7 @@ const round = (number) => Math.round(number * 1000) / 1000
 export function computeBalance(balanceMap) {
   // validate balance
   let total = 0;
-  balanceMap.forEach(value => total += value)
+  balanceMap.forEach(value => total += value);
   assert(total < 0.01, 'Balance is not balanced: ' + total)
 
   let highest = { diff: -Infinity }

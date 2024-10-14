@@ -8,8 +8,8 @@
     return Number(inputValue.replace(/,/g, '.')) ?? 0
   }
   function computeSplit() {
-    const  round = (value, digits) => Number(value.toFixed(digits))
-    const  DECIMALS = 2
+    const round = (value, digits) => Number(value.toFixed(digits))
+    const DECIMALS = 2
     const checked = document.querySelectorAll('input[data-included][type=checkbox]:checked')
     const total = getAmount()
     const indivAmount = checked.length === 0 ? 0 : round(total / checked.length, DECIMALS)

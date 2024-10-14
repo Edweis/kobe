@@ -108,8 +108,7 @@ router.get('/projects/:projectId/autocomplete', async ctx => {
     LIMIT 10`,
     [ctx.params.projectId, '%' + ctx.query.name + '%']
   )
-  const options = response.map(r => r.name)
-  console.log(options)
+  const options = response.map(r => r.name) 
   const template = Handlebars.compile(/*html*/`{{#each options}}<option value="{{this}}"></option>{{/each}}`)
   ctx.body = template({ options })
 })
@@ -133,7 +132,6 @@ router.get('/projects/:projectId/lines/:lineId', async (ctx) => {
   let line = await db.get('SELECT * FROM lines WHERE project_id=$1 AND id=$2', [project.id, ctx.params.lineId])
   let split = await db.all('SELECT * from split WHERE project_id=$1 AND line_id=$2', [project.id, ctx.params.lineId])
   ctx.set('etag', JSON.stringify(line.updated_at + '#' + ctx.state.me))
-  console.log(ctx.response.header)
 
   const perfectSplit = line.amount / split.filter(s => s.amount > 0).length
   const isEqually = split.every(({ amount }) => amount - perfectSplit <= 0.1 || amount === 0)
@@ -170,7 +168,7 @@ router.post('/projects/:projectId/lines', async (ctx) => {
   line.created_at = line.created_at ?? now
   line.amount = Number(line.amount.replace(/,/g, '.'))
   line.split = (line.split || []).map(s => ({ ...s, amount: Number(s.amount ?? 0) }))
-
+ 
   const totalSplit = line.split.reduce((acc, val) => acc + val.amount, 0)
   ctx.assert(totalSplit === Number(line.amount), 400, `Balance is off: ${totalSplit} vs ${line.amount}`)
 
@@ -192,7 +190,6 @@ router.post('/projects/:projectId/lines', async (ctx) => {
 
 
   ctx.status = 201
-  console.log(ctx.header)
   if (ctx.header['hx-current-url'].includes('balance'))
     return ctx.set('HX-Redirect', `/projects/${projectId}/balance/`)
   return ctx.set('HX-Redirect', `/projects/${projectId}/`)
