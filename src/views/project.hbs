@@ -36,7 +36,7 @@
         href="lines/{{this.id}}" 
         class="{{#if (gt this.myImpact 0) }}bg-secondary/10{{else}}bg-primary/10{{/if}} py-2 px-4" 
         {{#if @last}}
-        {{#unless (empty lines)}}
+        {{#unless (empty ../lines)}}
         hx-get="?page={{../nextPage}}&q={{../q}}" 
         hx-trigger="revealed" 
         hx-swap="afterend" 

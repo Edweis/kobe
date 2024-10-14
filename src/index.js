@@ -85,7 +85,7 @@ router.get('/projects/:projectId', async (ctx) => {
 
   // Cache by last modified date
   const { latest } = await db.get(`SELECT MAX(updated_at) as latest FROM lines WHERE project_id = ?`, [project.id])
-  if (latest) ctx.set('etag', JSON.stringify(`${latest}#${q}#${page}#${ctx.state.me}#v12`))
+  if (latest) ctx.set('etag', JSON.stringify(`${latest}#${q}#${page}#${ctx.state.me}#v13`))
 
   lines = lines.map(line => {
     const myImpact = (line.paid === me) ? line.amount - line.myAmount : -line.myAmount
