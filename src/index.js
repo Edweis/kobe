@@ -108,7 +108,7 @@ router.get('/projects/:projectId/autocomplete', async ctx => {
     LIMIT 10`,
     [ctx.params.projectId, '%' + ctx.query.name + '%']
   )
-  const options = response.map(r => r.name) 
+  const options = response.map(r => r.name)
   const template = Handlebars.compile(/*html*/`{{#each options}}<option value="{{this}}"></option>{{/each}}`)
   ctx.body = template({ options })
 })
@@ -168,9 +168,9 @@ router.post('/projects/:projectId/lines', async (ctx) => {
   line.created_at = line.created_at ?? now
   line.amount = Number(line.amount.replace(/,/g, '.'))
   line.split = (line.split || []).map(s => ({ ...s, amount: Number(s.amount ?? 0) }))
- 
+
   const totalSplit = line.split.reduce((acc, val) => acc + val.amount, 0)
-  ctx.assert(totalSplit === Number(line.amount), 400, `Balance is off: ${totalSplit} vs ${line.amount}`)
+  ctx.assert(totalSplit - Number(line.amount) < 0.0001, 400, `Balance is off: ${totalSplit} vs ${line.amount}`)
 
 
   await db.run(`
