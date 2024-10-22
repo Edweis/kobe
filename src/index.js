@@ -271,7 +271,8 @@ router.get('/assets/:img', async (ctx) => {
     return sendStatic('./src/assets/' + img)(ctx)
 });
 
+const PORT = process.env.PORT || 3000
 app
   .use(router.routes())
   .use(router.allowedMethods())
-  .listen(8745, () => console.log('Open: http://localhost:8745'));
+  .listen(PORT, () => console.log('Open: http://localhost:'+PORT));

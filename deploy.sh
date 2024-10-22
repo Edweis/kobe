@@ -1,29 +1,30 @@
 set -e
 
-USER=ubuntu
-SERVER=ssh.garnet.center
-DIR=/home/ubuntu/kobe/
+PROJECT=kobe
+USER=lipp
+SERVER=lipp.local 
+PORT=6602
+
 
 
 echo "\n🚀 Send to server"
-rsync -ravzh --exclude='node_modules' --exclude='.git' --exclude='database.db'  . $USER@$SERVER:$DIR 
+rsync -ravzh --filter=':- .gitignore'  . $USER@$SERVER:/home/$USER/projects/$PROJECT/
 
 echo "\n🚀 Download dependencies"
-ssh -t $USER@$SERVER "cd kobe ; pnpm install --prod"
+ssh $USER@$SERVER "cd projects/$PROJECT ; pnpm install --prod"
 
 echo "\n🏃🏻‍♂️ Restart nginx" # sudo ln -s /home/ubuntu/kobe/nginx.conf /etc/nginx/conf.d/kobe.conf # Make sure the symlink exists 
-ssh $USER@$SERVER "sudo nginx -t && sudo nginx -s reload &"
-
-echo "\n🏃🏻‍♂️ Restart kobe"
-ssh $USER@$SERVER pm2 reload kobe 
-
-
-# View logs with
-# ssh ubuntu@ssh.garnet.center tail -f /home/edweis/.pm2/logs/api2-logs.log
+ssh $USER@$SERVER "sudo nginx -t && sudo nginx -s reload"
 
 
 ## Starting  pm2 for the first time
-# NODE_ENV=production pm2 start ./src/index.js \
-#     --name kobe --time \
-#     -o $HOME/.pm2/logs/kobe-logs.log -e $HOME/.pm2/logs/kobe-logs.log
+ssh $USER@$SERVER "\
+  cd projects/$PROJECT ; \
+  NODE_ENV=production PORT=$PORT pm2 \
+    start ./src/index.js \
+    --name $PROJECT --time \
+    -o /home/$USER/.pm2/logs/$PROJECT-logs.log \
+    -e /home/$USER/.pm2/logs/$PROJECT-logs.log \
+  || pm2 reload $PROJECT"
+
 # pm2 save
