@@ -35,9 +35,15 @@
         {{/each}}
       </fieldset>
     </div>
-    <div>
-      <h3 class="mt-4">Danger zone</h3>
-      <button hx-confirm="Are you sure you want to archive the project?" hx-delete="/projects/{{project.id}}" hx-push-url="/" class="btn btn-accent">Archive project</button>
+    <div class="flex justify-between">
+      <div>
+        <h3 class="mt-4">Export CSV</h3>
+        <a hx-disable="" href="/projects/{{project.id}}/export" download="kobe-export.csv" class="btn">Export to CSV</a>
+      </div>
+      <div>
+        <h3 class="mt-4">Danger zone</h3>
+        <button hx-confirm="Are you sure you want to archive the project?" hx-delete="/projects/{{project.id}}" hx-push-url="/" class="btn btn-accent">Archive project</button>
+      </div>
     </div>
   </section>
 </body>

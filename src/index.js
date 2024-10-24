@@ -2,6 +2,7 @@ import Handlebars from 'handlebars';
 import Koa from 'koa';
 import Router from '@koa/router';
 import { render } from './lib/render.js';
+import { jsonToCsv } from './lib/csv.js';
 import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import db from './lib/db.js';
@@ -256,6 +257,27 @@ router.put('/projects/:projectId/me', async (ctx) => {
   const expires = new dayjs().add(1, 'year').toDate()
   ctx.cookies.set(projectId + ':me', ctx.request.body.me, { sameSite: 'strict', expires })
   ctx.status = 201
+})
+router.get('/projects/:projectId/export', async (ctx) => {
+  const projectId = ctx.params.projectId
+  const lines = await db.all(`
+    SELECT 
+      l.id as line_id, 
+      l.created_at, 
+      l.name,
+      l.paid as paid_by,
+      l.amount as paid_amount,
+      s.participant,
+      s.amount as participant_amount
+    FROM lines l
+    LEFT JOIN split s ON s.project_id=$projectId AND s.line_id=l.id
+    WHERE l.project_id=$projectId AND deleted_at IS NULL
+    ORDER BY created_at DESC
+    LIMIT $limit
+    `,  { $projectId: projectId, $limit: 10_000, });
+  
+  ctx.set('Content-Type', 'text/csv')
+  ctx.body = jsonToCsv(lines)
 })
 
 
