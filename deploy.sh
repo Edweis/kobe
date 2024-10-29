@@ -27,4 +27,10 @@ ssh $USER@$SERVER "\
     -e /home/$USER/.pm2/logs/$PROJECT-logs.log \
   || pm2 reload $PROJECT"
 
-# pm2 save
+
+# Backup database
+NOW=$(date +"%Y-%m-%dT%H:%M:%S%z")
+mkdir -p .backups/
+
+scp -v $USER@$SERVER:/home/$USER/projects/$PROJECT/database.db ./database.db
+cp ./database.db .backups/database-$NOW.db.backup
