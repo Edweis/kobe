@@ -38,7 +38,8 @@ router.param('projectId', async (projectId, ctx, next) => {
 // Endpoints
 router.get('/', async (ctx) => {
   let projects = await db.all('SELECT id, name FROM projects WHERE deleted_at IS NULL ORDER BY name')
-  ctx.body = render('list-projects', { projects })
+  let archivedProjects = await db.all('SELECT id, name FROM projects WHERE deleted_at IS NOT NULL ORDER BY name')
+  ctx.body = render('list-projects', { projects, archivedProjects })
 });
 
 router.post('/projects', async ctx => {
