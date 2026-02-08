@@ -25,6 +25,9 @@
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sqlite3"]
+  },
   "devDependencies": {
     "concurrently": "^8.2.2",
     "daisyui": "^4.12.10",

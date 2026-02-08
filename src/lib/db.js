@@ -2,7 +2,8 @@ import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 
 sqlite3.verbose();
-const DATABASE_FILE = './database.db';
+const IS_PROD = process.env.NODE_ENV === 'production';
+const DATABASE_FILE = IS_PROD ? './storage/database.db' : './database.db';
 
 
 // init database
@@ -10,8 +11,6 @@ export const database = await open({
   filename: DATABASE_FILE,
   driver: sqlite3.Database,
 });
-
-const IS_PROD = process.env.NODE_ENV === 'production'
 
 await database.exec(
   `
